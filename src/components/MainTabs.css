@@ -1,0 +1,75 @@
+.custom-tab-bar {
+  --background: #fff5f8;
+  --border: none;
+  height: 80px;
+  padding-bottom: 15px;
+  padding-top: 10px;
+}
+
+.custom-tab-bar IonTabButton {
+  --background: transparent;
+  --color-selected: var(--ion-color-primary);
+  --color: #888;
+}
+
+.tab-icon-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  transition: all 0.2s ease-in-out;
+}
+
+/* Base styles for IonTabButton inner content */
+ion-tab-button .tab-icon-wrapper {
+  padding: 8px 12px;
+  border-radius: 15px;
+}
+
+/* Active State styling */
+ion-tab-button.tab-selected .tab-icon-wrapper {
+  background: white;
+  border: 1.5px solid #ffcada;
+  box-shadow: 0 4px 10px rgba(216, 27, 96, 0.1);
+}
+
+ion-tab-button ion-icon {
+  font-size: 24px;
+  margin-bottom: 4px;
+}
+
+ion-tab-button ion-label {
+  font-size: 10px;
+  font-weight: 600;
+  margin-top: 2px;
+}
+
+/* Cart Badge container */
+.icon-badge-container {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.badge-dot {
+  position: absolute;
+  top: -2px;
+  right: -5px;
+  width: 8px;
+  height: 8px;
+  background-color: red;
+  border-radius: 50%;
+  border: 1px solid white;
+}
+
+/* Ensure icons and labels look sharp */
+ion-tab-button.tab-selected ion-label {
+  color: var(--ion-color-primary);
+}
+
+ion-tab-button.tab-selected ion-icon {
+  color: var(--ion-color-primary);
+}

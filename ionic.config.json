@@ -1,0 +1,7 @@
+{
+  "name": "maniMark-app",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "react-vite"
+}

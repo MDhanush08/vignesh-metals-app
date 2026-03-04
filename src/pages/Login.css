@@ -1,0 +1,63 @@
+.login-content {
+  --background: #fff;
+}
+
+.login-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+  padding: 20px;
+}
+
+.logo-section {
+  text-align: center;
+  margin-bottom: 40px;
+}
+
+.app-logo {
+  width: 120px;
+  height: 120px;
+  object-fit: contain;
+  margin-bottom: 15px;
+}
+
+.welcome-text h2 {
+  font-weight: 700;
+  color: #333;
+  margin: 0;
+  font-size: 24px;
+}
+
+.login-form {
+  width: 100%;
+  max-width: 400px;
+}
+
+.custom-input-item {
+  --padding-start: 10px;
+  --padding-end: 10px;
+  --background: #f5f5f5;
+  --border-radius: 12px;
+  margin-bottom: 15px;
+  border: 1px solid #eee;
+}
+
+.custom-input {
+  --padding-top: 15px;
+  --padding-bottom: 15px;
+  font-size: 16px;
+}
+
+.login-button {
+  --border-radius: 12px;
+  --padding-top: 18px;
+  --padding-bottom: 18px;
+  height: 56px;
+  font-size: 18px;
+  font-weight: 600;
+  text-transform: none;
+  --background: var(--ion-color-primary);
+  margin-top: 30px;
+}
