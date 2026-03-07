@@ -1,72 +1,115 @@
 import {
   IonContent,
-  IonHeader,
   IonPage,
-  IonTitle,
-  IonToolbar,
   IonInput,
   IonItem,
   IonButton,
+  IonIcon,
   IonText,
-  IonGrid,
-  IonRow,
-  IonCol,
+  IonCheckbox,
+  IonLabel
 } from '@ionic/react';
-import React from 'react';
+import React, { useState } from 'react';
 import { useHistory } from 'react-router-dom';
+import {
+  eyeOutline,
+  eyeOffOutline,
+  mailOutline,
+  lockClosedOutline
+} from 'ionicons/icons';
 import './Login.css';
 
 const Login: React.FC = () => {
   const history = useHistory();
+  const [showPassword, setShowPassword] = useState(false);
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
-    // Navigate to dashboard on click
     history.push('/app/dashboard');
   };
 
   return (
     <IonPage>
-      <IonContent className="ion-padding login-content">
-        <div className="login-container">
-          <div className="logo-section">
-            <div className="logo-placeholder">
-              <img src="/assets/logo.png" alt="Logo" className="app-logo" onError={(e) => {
-                e.currentTarget.src = '';
-              }} />
+      <IonContent className="login-page-content" scrollY={false}>
+        {/* Background Decorative Elements */}
+        <div className="login-bg-decoration">
+          <div className="circle circle-1"></div>
+          <div className="circle circle-2"></div>
+        </div>
+
+        <div className="login-main-container">
+          <div className="login-header-section">
+            <div className="login-logo-holder">
+              <img
+                src="/assets/logo.jpg"
+                alt="Vignesh Metals"
+                className="login-brand-logo"
+              />
             </div>
-            <IonText className="welcome-text">
-              <h2>Welcome Back</h2>
+            <IonText color="dark">
+              <h1 className="login-main-title">Direct Sales</h1>
+              <p className="login-welcome-text">Please sign in to your salesperson account</p>
             </IonText>
           </div>
 
-          <form className="login-form" onSubmit={handleLogin}>
-            <IonItem lines="none" className="custom-input-item">
-              <IonInput
-                type="email"
-                placeholder="Email Address"
-                className="custom-input"
-                required
-              ></IonInput>
-            </IonItem>
+          <form className="login-form-wrapper" onSubmit={handleLogin}>
+            <div className="input-group">
+              <label className="input-label">Email Address</label>
+              <div className="custom-input-container">
+                <IonIcon icon={mailOutline} className="input-prefix-icon" />
+                <IonInput
+                  type="email"
+                  placeholder="name@vigneshmetals.com"
+                  className="login-input-field"
+                  required
+                />
+              </div>
+            </div>
 
-            <IonItem lines="none" className="custom-input-item ion-margin-top">
-              <IonInput
-                type="password"
-                placeholder="Password"
-                className="custom-input"
-                required
-              ></IonInput>
-            </IonItem>
+            <div className="input-group">
+              <label className="input-label">Password</label>
+              <div className="custom-input-container">
+                <IonIcon icon={lockClosedOutline} className="input-prefix-icon" />
+                <IonInput
+                  type={showPassword ? "text" : "password"}
+                  placeholder="••••••••"
+                  className="login-input-field"
+                  required
+                />
+                <button
+                  type="button"
+                  className="password-toggle-btn"
+                  onClick={() => setShowPassword(!showPassword)}
+                >
+                  <IonIcon icon={showPassword ? eyeOffOutline : eyeOutline} />
+                </button>
+              </div>
+            </div>
 
-            <IonButton 
-              expand="block" 
-              type="submit" 
-              className="login-button ion-margin-top"
-            >
-              Login
-            </IonButton>
+            <div className="login-extras">
+              <div className="remember-me">
+                <IonCheckbox slot="start" mode="md" />
+                <IonLabel>Remember Me</IonLabel>
+              </div>
+              <IonButton fill="clear" size="small" className="forgot-pwd-btn">
+                Forgot?
+              </IonButton>
+            </div>
+
+            <div className="login-action-section">
+              <IonButton
+                expand="block"
+                type="submit"
+                className="login-submit-btn"
+              >
+                Sign In
+              </IonButton>
+            </div>
           </form>
+
+          <div className="login-footer">
+            <p>© 2024 Vignesh Metals. All Rights Reserved.</p>
+          </div>
         </div>
       </IonContent>
     </IonPage>

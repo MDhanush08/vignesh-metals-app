@@ -77,7 +77,7 @@ const MainTabs: React.FC = () => {
         <IonTabButton tab="orders" href="/app/orders">
           <div className="tab-icon-wrapper">
             <IonIcon icon={bagHandleOutline} />
-            <IonLabel>Order History</IonLabel>
+            <IonLabel>Order Review</IonLabel>
           </div>
         </IonTabButton>
 

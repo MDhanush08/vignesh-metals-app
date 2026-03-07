@@ -1,0 +1,256 @@
+.cart-header {
+  --background: var(--ion-color-primary);
+  --color: #ffffff;
+  --border-width: 0;
+  --padding-top: 10px;
+  --padding-bottom: 5px;
+}
+
+.cart-header ion-title {
+  font-weight: 700;
+  font-size: 20px;
+  letter-spacing: -0.5px;
+}
+
+.cart-content {
+  --background: #f8fafc;
+}
+
+.cart-summary-top {
+  padding: 24px 20px 15px 20px;
+  background: #ffffff;
+}
+
+.cart-summary-top h2 {
+  font-size: 24px;
+  font-weight: 800;
+  color: #1e293b;
+  margin: 0;
+}
+
+.cart-summary-top p {
+  font-size: 14px;
+  color: #64748b;
+  margin: 4px 0 0 0;
+}
+
+.cart-list {
+  background: transparent;
+  padding: 10px 16px;
+}
+
+.cart-item-card {
+  --background: #ffffff;
+  margin-bottom: 12px;
+  border-radius: 16px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+  overflow: hidden;
+  --padding-start: 12px;
+  --inner-padding-end: 12px;
+  --padding-top: 12px;
+  --padding-bottom: 12px;
+  border: 1px solid rgba(0, 0, 0, 0.02);
+}
+
+.cart-thumb {
+  --border-radius: 12px;
+  width: 70px;
+  height: 70px;
+  margin-right: 15px;
+}
+
+.cart-item-label {
+  display: flex !important;
+  flex-direction: column;
+}
+
+.item-title-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.item-title-row h3 {
+  font-size: 16px;
+  font-weight: 700;
+  color: #1e293b;
+  margin: 0;
+  white-space: normal;
+}
+
+.remove-btn {
+  --padding-start: 5px;
+  --padding-end: 5px;
+  margin: -5px -5px 0 0;
+  --color: #94a3b8;
+  height: 30px;
+  width: 30px;
+}
+
+.item-cat {
+  font-size: 12px;
+  color: #64748b;
+  margin: 4px 0 10px 0;
+}
+
+.item-bottom-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.item-price {
+  font-size: 16px;
+  font-weight: 800;
+  color: var(--ion-color-primary);
+}
+
+.quantity-control {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: #f1f5f9;
+  border-radius: 10px;
+  padding: 2px 4px;
+}
+
+.quantity-control ion-button {
+  --color: #1e293b;
+  --padding-start: 4px;
+  --padding-end: 4px;
+  height: 28px;
+  width: 28px;
+  margin: 0;
+}
+
+.item-qty {
+  font-size: 14px;
+  font-weight: 700;
+  color: #1e293b;
+  width: 24px;
+  /* Fixed width to prevent shaking */
+  text-align: center;
+  display: inline-block;
+}
+
+.empty-cart {
+  padding: 80px 40px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.empty-cart-icon {
+  font-size: 80px;
+  color: #cbd5e1;
+  margin-bottom: 20px;
+}
+
+.empty-cart h3 {
+  font-size: 20px;
+  font-weight: 700;
+  color: #1e293b;
+  margin-bottom: 8px;
+}
+
+.empty-cart p {
+  color: #64748b;
+  margin-bottom: 24px;
+}
+
+.order-options {
+  padding: 20px 20px 40px 20px;
+}
+
+.order-options h3 {
+  font-size: 16px;
+  font-weight: 700;
+  color: #1e293b;
+  margin-bottom: 12px;
+}
+
+.type-toggle {
+  display: flex;
+  gap: 10px;
+}
+
+.type-badge {
+  padding: 10px 20px;
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  background: #f1f5f9;
+  color: #64748b;
+}
+
+.type-badge.active.general {
+  background: var(--ion-color-primary);
+  color: #ffffff;
+}
+
+.type-badge.active.emergency {
+  background: var(--ion-color-danger);
+  color: #ffffff;
+}
+
+.cart-footer {
+  background: #ffffff;
+  padding: 20px;
+  border-top: 1px solid #f1f5f9;
+  box-shadow: 0 -10px 30px rgba(0, 0, 0, 0.05);
+}
+
+.total-container {
+  margin-bottom: 20px;
+}
+
+.total-row {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.total-row .label {
+  font-size: 14px;
+  color: #64748b;
+}
+
+.total-row .value {
+  font-size: 14px;
+  color: #1e293b;
+  font-weight: 600;
+}
+
+.total-row.main {
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px dashed #e2e8f0;
+}
+
+.total-row.main .label {
+  font-size: 18px;
+  font-weight: 800;
+  color: #1e293b;
+}
+
+.total-row.main .value {
+  font-size: 18px;
+  font-weight: 800;
+  color: var(--ion-color-primary);
+}
+
+.place-order-btn {
+  --background: var(--ion-color-primary);
+  --color: #ffffff;
+  --border-radius: 16px;
+  height: 56px;
+  font-weight: 800;
+  font-size: 16px;
+  text-transform: none;
+  letter-spacing: 0.5px;
+  box-shadow: 0 8px 24px rgba(0, 51, 102, 0.25);
+  margin: 0;
+}

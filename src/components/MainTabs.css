@@ -1,15 +1,17 @@
 .custom-tab-bar {
-  --background: #fff5f8;
-  --border: none;
-  height: 80px;
-  padding-bottom: 15px;
-  padding-top: 10px;
+  --background: #ffffff;
+  --border: 1px solid rgba(0, 0, 0, 0.05);
+  height: 65px;
+  padding-bottom: constant(safe-area-inset-bottom);
+  padding-bottom: env(safe-area-inset-bottom);
+  box-shadow: 0 -4px 15px rgba(0, 0, 0, 0.05);
 }
 
-.custom-tab-bar IonTabButton {
+.custom-tab-bar ion-tab-button {
   --background: transparent;
   --color-selected: var(--ion-color-primary);
-  --color: #888;
+  --color: #94a3b8;
+  padding: 0;
 }
 
 .tab-icon-wrapper {
@@ -19,34 +21,38 @@
   justify-content: center;
   width: 100%;
   height: 100%;
-  transition: all 0.2s ease-in-out;
+  padding-top: 5px;
+  transition: all 0.2s ease;
 }
 
-/* Base styles for IonTabButton inner content */
-ion-tab-button .tab-icon-wrapper {
-  padding: 8px 12px;
-  border-radius: 15px;
-}
-
-/* Active State styling */
-ion-tab-button.tab-selected .tab-icon-wrapper {
-  background: white;
-  border: 1.5px solid #ffcada;
-  box-shadow: 0 4px 10px rgba(216, 27, 96, 0.1);
+/* Remove Active Indicator Line/Dot as requested */
+ion-tab-button.tab-selected::after {
+  display: none;
 }
 
 ion-tab-button ion-icon {
-  font-size: 24px;
-  margin-bottom: 4px;
+  font-size: 26px;
+  margin-bottom: 2px;
+  transition: transform 0.2s ease, color 0.2s ease;
 }
 
 ion-tab-button ion-label {
-  font-size: 10px;
-  font-weight: 600;
-  margin-top: 2px;
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.1px;
+  transition: font-weight 0.2s ease, color 0.2s ease;
 }
 
-/* Cart Badge container */
+/* Active State Enhancements - Purely Color and Weight */
+ion-tab-button.tab-selected ion-icon {
+  color: var(--ion-color-primary);
+}
+
+ion-tab-button.tab-selected ion-label {
+  color: var(--ion-color-primary);
+  font-weight: 700;
+}
+
 .icon-badge-container {
   position: relative;
   display: flex;
@@ -56,20 +62,11 @@ ion-tab-button ion-label {
 
 .badge-dot {
   position: absolute;
-  top: -2px;
-  right: -5px;
-  width: 8px;
-  height: 8px;
-  background-color: red;
+  top: 0;
+  right: -2px;
+  width: 7px;
+  height: 7px;
+  background-color: var(--ion-color-danger);
   border-radius: 50%;
-  border: 1px solid white;
-}
-
-/* Ensure icons and labels look sharp */
-ion-tab-button.tab-selected ion-label {
-  color: var(--ion-color-primary);
-}
-
-ion-tab-button.tab-selected ion-icon {
-  color: var(--ion-color-primary);
+  border: 1.5px solid white;
 }
