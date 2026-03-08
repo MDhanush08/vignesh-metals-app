@@ -1,0 +1,278 @@
+.order-details-header {
+  --background: var(--ion-color-primary);
+  --color: #ffffff;
+  --border-width: 0;
+  --padding-top: 10px;
+  --padding-bottom: 5px;
+}
+
+.order-details-header ion-title {
+  font-weight: 700;
+  font-size: 20px;
+  letter-spacing: -0.5px;
+}
+
+.order-details-header ion-button {
+  --color: #ffffff;
+}
+
+.order-details-content {
+  --background: #f1f5f9;
+}
+
+.modal-body-padding {
+  padding: 20px;
+}
+
+.top-action-bar {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 20px;
+}
+
+.screenshot-pdf-btn {
+  background: #e9ecef;
+  border: none;
+  color: #495057;
+  padding: 10px 24px;
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 700;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+  cursor: pointer;
+}
+
+.status-hero-card {
+  background: var(--ion-color-primary);
+  border-radius: 20px;
+  padding: 24px;
+  color: #ffffff;
+  margin-bottom: 20px;
+  box-shadow: 0 10px 30px rgba(193, 11, 88, 0.15);
+}
+
+.hero-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+}
+
+.hero-head h3 {
+  font-size: 16px;
+  font-weight: 700;
+  margin: 0;
+  opacity: 0.95;
+}
+
+.hero-status-pill {
+  background: #ffffff;
+  color: #1e293b;
+  padding: 8px 16px;
+  border-radius: 25px;
+  font-size: 13px;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+.hero-status-pill .dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #facc15;
+}
+
+.hero-info-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.hero-item {
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+}
+
+.icon-wrap {
+  width: 36px;
+  height: 36px;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.icon-wrap ion-icon {
+  font-size: 20px;
+}
+
+.text-wrap {
+  display: flex;
+  flex-direction: column;
+}
+
+.text-wrap .label {
+  font-size: 12px;
+  font-weight: 600;
+  opacity: 0.85;
+  margin-bottom: 3px;
+}
+
+.text-wrap .value {
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.details-white-card {
+  background: #ffffff;
+  border-radius: 20px;
+  padding: 24px;
+  margin-bottom: 20px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.03);
+  border: 1px solid rgba(0, 0, 0, 0.02);
+}
+
+.card-title-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 18px;
+}
+
+.flex-between {
+  justify-content: space-between;
+}
+
+.title-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.title-icon {
+  font-size: 22px;
+  color: var(--ion-color-primary);
+}
+
+.details-white-card h4 {
+  font-size: 16px;
+  font-weight: 800;
+  color: #1e293b;
+  margin: 0;
+}
+
+.vendor-name-large {
+  font-size: 20px;
+  font-weight: 800;
+  color: #1e293b;
+  margin: 0 0 14px 0;
+}
+
+.contact-row {
+  display: flex;
+  gap: 12px;
+  margin-top: 8px;
+  align-items: flex-start;
+}
+
+.contact-row ion-icon {
+  font-size: 16px;
+  color: #94a3b8;
+  margin-top: 3px;
+}
+
+.contact-row p {
+  font-size: 13.5px;
+  color: #64748b;
+  margin: 0;
+  line-height: 1.5;
+}
+
+.inline-edit-btn {
+  background: #fff9ed;
+  border: none;
+  color: #92400e;
+  padding: 6px 16px;
+  border-radius: 10px;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.items-table {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  margin-bottom: 24px;
+}
+
+.table-item-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.item-name-qty {
+  font-size: 15px;
+  font-weight: 700;
+  color: #1e293b;
+  margin: 0 0 4px 0;
+}
+
+.item-code,
+.item-pricing {
+  font-size: 12px;
+  color: #94a3b8;
+  margin-bottom: 2px;
+}
+
+.item-total {
+  font-size: 15px;
+  font-weight: 800;
+  color: #1e293b;
+}
+
+.summary-section {
+  border-top: 1px dashed #e2e8f0;
+  padding-top: 20px;
+}
+
+.summary-row {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.summary-row span:first-child {
+  font-size: 13px;
+  color: #64748b;
+}
+
+.summary-row span:last-child {
+  font-size: 13px;
+  color: #1e293b;
+  font-weight: 600;
+}
+
+.grand-total {
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid #f1f5f9;
+}
+
+.grand-total span:first-child {
+  font-size: 17px;
+  font-weight: 800;
+  color: #1e293b;
+}
+
+.grand-total span:last-child {
+  font-size: 17px;
+  font-weight: 800;
+  color: var(--ion-color-primary);
+}

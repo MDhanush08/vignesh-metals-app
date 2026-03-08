@@ -90,3 +90,30 @@ body {
 ion-content {
   --background: var(--app-background);
 }
+
+/* Custom Alert Styling for Sign Out */
+.logout-alert .alert-wrapper {
+  --background: #ffffff;
+  border-radius: 20px;
+}
+
+.logout-alert .alert-title {
+  color: #1e293b;
+  font-weight: 800;
+  font-size: 20px;
+}
+
+.logout-alert .alert-message {
+  color: #64748b;
+  font-size: 15px;
+}
+
+.logout-alert .alert-button-cancel {
+  color: #64748b !important;
+  font-weight: 600;
+}
+
+.logout-alert .alert-button-confirm {
+  color: #ef4444 !important;
+  font-weight: 800;
+}

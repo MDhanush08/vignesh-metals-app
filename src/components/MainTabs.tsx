@@ -21,6 +21,7 @@ import Dashboard from '../pages/Dashboard';
 import Products from '../pages/Products';
 import Cart from '../pages/Cart';
 import OrderHistory from '../pages/OrderHistory';
+import OrderDetails from '../pages/OrderDetails';
 import Profile from '../pages/Profile';
 
 import './MainTabs.css';
@@ -37,6 +38,9 @@ const MainTabs: React.FC = () => {
         </Route>
         <Route exact path="/app/cart">
           <Cart />
+        </Route>
+        <Route exact path="/app/orders/:id">
+          <OrderDetails />
         </Route>
         <Route exact path="/app/orders">
           <OrderHistory />

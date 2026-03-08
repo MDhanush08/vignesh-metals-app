@@ -59,11 +59,18 @@ const Products: React.FC = () => {
   };
 
   const handleDownloadCatalog = () => {
+    const link = document.createElement('a');
+    link.href = '/assets/SRI VIGNESH METAL CATALOGE.pptx';
+    link.download = 'SRI VIGNESH METAL CATALOGE.pptx';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+
     present({
-      message: 'Generating Catalog PDF...',
+      message: 'Downloading Catalog...',
       duration: 2000,
       position: 'top',
-      color: 'primary',
+      color: 'success',
       mode: 'ios'
     });
   };
@@ -93,7 +100,7 @@ const Products: React.FC = () => {
         <div className="catalog-subheader">
           <div className="header-flex">
             <IonText>
-              <h2>{selectedCategory === 'All' ? 'Our Collection' : selectedCategory}</h2>
+              <h2>{selectedCategory === 'All' ? 'Our Product' : selectedCategory}</h2>
               <p>Showing {filteredProducts.length} results</p>
             </IonText>
             <IonButton fill="outline" className="catalog-pdf-btn" onClick={handleDownloadCatalog}>

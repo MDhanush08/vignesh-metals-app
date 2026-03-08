@@ -47,7 +47,6 @@ const Login: React.FC = () => {
               />
             </div>
             <IonText color="dark">
-              <h1 className="login-main-title">Direct Sales</h1>
               <p className="login-welcome-text">Please sign in to your salesperson account</p>
             </IonText>
           </div>
@@ -91,9 +90,6 @@ const Login: React.FC = () => {
                 <IonCheckbox slot="start" mode="md" />
                 <IonLabel>Remember Me</IonLabel>
               </div>
-              <IonButton fill="clear" size="small" className="forgot-pwd-btn">
-                Forgot?
-              </IonButton>
             </div>
 
             <div className="login-action-section">

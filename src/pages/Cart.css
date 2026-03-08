@@ -99,8 +99,20 @@
   align-items: center;
 }
 
-.item-price {
-  font-size: 16px;
+.price-stack {
+  display: flex;
+  flex-direction: column;
+}
+
+.unit-price {
+  font-size: 11px;
+  font-weight: 600;
+  color: #94a3b8;
+  margin-bottom: 2px;
+}
+
+.item-subtotal {
+  font-size: 17px;
   font-weight: 800;
   color: var(--ion-color-primary);
 }

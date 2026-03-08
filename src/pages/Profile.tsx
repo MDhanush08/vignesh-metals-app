@@ -22,7 +22,8 @@ import {
   personOutline,
   cartOutline,
   chevronForwardOutline,
-  shieldCheckmarkOutline
+  shieldCheckmarkOutline,
+  lockClosedOutline
 } from 'ionicons/icons';
 import React from 'react';
 import { useHistory } from 'react-router-dom';
@@ -42,11 +43,17 @@ const Profile: React.FC = () => {
     presentAlert({
       header: 'Confirm Logout',
       message: 'Are you sure you want to sign out from the application?',
+      cssClass: 'logout-alert',
       buttons: [
-        { text: 'Stay', role: 'cancel' },
+        {
+          text: 'Stay',
+          role: 'cancel',
+          cssClass: 'alert-button-cancel'
+        },
         {
           text: 'Sign Out',
           role: 'confirm',
+          cssClass: 'alert-button-confirm',
           handler: () => history.push('/login')
         }
       ],
@@ -56,16 +63,6 @@ const Profile: React.FC = () => {
 
   return (
     <IonPage>
-      <IonHeader className="ion-no-border">
-        <IonToolbar className="profile-header">
-          <IonTitle>My Profile</IonTitle>
-          <IonButtons slot="end">
-            <IonButton>
-              <IonIcon icon={notificationsOutline} slot="icon-only" />
-            </IonButton>
-          </IonButtons>
-        </IonToolbar>
-      </IonHeader>
 
       <IonContent className="profile-content">
         <div className="profile-hero">
@@ -129,6 +126,15 @@ const Profile: React.FC = () => {
         </div>
 
         <div className="profile-actions">
+          <button className="action-tile ion-activatable" onClick={() => console.log('Change Password clicked')}>
+            <IonRippleEffect />
+            <div className="action-icon password">
+              <IonIcon icon={lockClosedOutline} />
+            </div>
+            <span className="action-label">Change Password</span>
+            <IonIcon icon={chevronForwardOutline} className="action-chevron" />
+          </button>
+
           <button className="action-tile logout-tile ion-activatable" onClick={handleLogout}>
             <IonRippleEffect />
             <div className="action-icon logout">

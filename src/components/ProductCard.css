@@ -48,7 +48,7 @@
 }
 
 .product-info {
-  padding: 14px;
+  padding: 10px 12px;
   display: flex;
   flex-direction: column;
   flex-grow: 1;
@@ -71,24 +71,24 @@
 }
 
 .product-price {
-  font-size: 1.15rem;
+  font-size: 1.1rem;
   font-weight: 800;
   color: var(--ion-color-primary);
-  margin-bottom: 4px;
+  margin-bottom: 2px;
 }
 
 .pack-size {
-  font-size: 0.75rem;
+  font-size: 0.7rem;
   color: #059669;
   font-weight: 700;
-  margin-bottom: 12px;
+  margin-bottom: 8px;
   opacity: 0.9;
 }
 
 .card-actions {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 8px;
   margin-top: auto;
 }
 

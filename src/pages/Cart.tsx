@@ -99,7 +99,10 @@ const Cart: React.FC = () => {
                   </div>
                   <p className="item-cat">{item.category}</p>
                   <div className="item-bottom-row">
-                    <span className="item-price">₹{item.price.toLocaleString()}</span>
+                    <div className="price-stack">
+                      <span className="unit-price">₹{item.price.toLocaleString()} / unit</span>
+                      <span className="item-subtotal">₹{(item.price * item.quantity).toLocaleString()}</span>
+                    </div>
                     <div className="quantity-control">
                       <IonButton fill="clear" size="small" onClick={() => updateQuantity(item.id, -1)}>
                         <IonIcon icon={removeOutline} />

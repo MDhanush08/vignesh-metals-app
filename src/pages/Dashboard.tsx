@@ -55,26 +55,28 @@ const Dashboard: React.FC = () => {
       </IonHeader>
 
       <IonContent className="ion-padding dashboard-content">
-        <div className="welcome-banner">
-          <IonText>
-            <h1>Welcome back,</h1>
-            <p>Here's what's happening with your orders today.</p>
-          </IonText>
-        </div>
+        <div className="sticky-header-container">
+          <div className="welcome-banner">
+            <IonText>
+              <h1>Welcome back,</h1>
+              <p>Here's what's happening today.</p>
+            </IonText>
+          </div>
 
-        <div className="search-section">
-          <IonSearchbar
-            placeholder="Search Order ID or Shop"
-            className="custom-searchbar"
-            searchIcon={searchOutline}
-          />
-        </div>
+          <div className="search-section">
+            <IonSearchbar
+              placeholder="Search Order ID or Shop"
+              className="custom-searchbar"
+              searchIcon={searchOutline}
+            />
+          </div>
 
-        <div className="section-header">
-          <h3>Active Orders</h3>
-          <IonButton fill="clear" color="primary" className="view-all-btn">
-            View All
-          </IonButton>
+          <div className="section-header">
+            <h3>Active Orders</h3>
+            <IonButton fill="clear" color="primary" className="view-all-btn">
+              View All
+            </IonButton>
+          </div>
         </div>
 
         <div className="orders-list">
