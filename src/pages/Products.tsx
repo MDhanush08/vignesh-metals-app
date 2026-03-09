@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import {
   IonContent,
   IonHeader,
@@ -12,17 +12,17 @@ import {
   useIonToast,
   IonModal,
   IonText,
-  IonGrid,
-  IonRow,
-  IonCol
+  IonCheckbox,
+  IonList,
+  IonItem,
+  IonLabel
 } from '@ionic/react';
 import {
   notificationsOutline,
   optionsOutline,
-  chevronForwardOutline,
   closeOutline,
   downloadOutline,
-  gridOutline
+  checkmarkCircle
 } from 'ionicons/icons';
 import ProductCard from '../components/ProductCard';
 import ProductModal from '../components/ProductModal';
@@ -31,17 +31,33 @@ import './Products.css';
 
 const Products: React.FC = () => {
   const [searchText, setSearchText] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState('All');
+  const [selectedCategories, setSelectedCategories] = useState<string[]>(['All']);
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [isProductModalOpen, setIsProductModalOpen] = useState(false);
   const [isFilterOpen, setIsFilterOpen] = useState(false);
+  const modal = useRef<HTMLIonModalElement>(null);
   const [present] = useIonToast();
 
   const filteredProducts = PRODUCTS.filter(p => {
     const matchesSearch = p.name.toLowerCase().includes(searchText.toLowerCase());
-    const matchesCategory = selectedCategory === 'All' || p.category === selectedCategory;
+    const matchesCategory = selectedCategories.includes('All') || selectedCategories.includes(p.category);
     return matchesSearch && matchesCategory;
   });
+
+  const toggleCategory = (category: string) => {
+    if (category === 'All') {
+      setSelectedCategories(['All']);
+    } else {
+      let newCategories = selectedCategories.filter(c => c !== 'All');
+      if (newCategories.includes(category)) {
+        newCategories = newCategories.filter(c => c !== category);
+        if (newCategories.length === 0) newCategories = ['All'];
+      } else {
+        newCategories.push(category);
+      }
+      setSelectedCategories(newCategories);
+    }
+  };
 
   const handleProductClick = (product: Product) => {
     setSelectedProduct(product);
@@ -75,16 +91,11 @@ const Products: React.FC = () => {
     });
   };
 
-  const changeCategory = (category: string) => {
-    setSelectedCategory(category);
-    setIsFilterOpen(false);
-  };
-
   return (
     <IonPage>
       <IonHeader className="ion-no-border">
         <IonToolbar className="products-header">
-          <IonTitle>Product Catalog</IonTitle>
+          <IonTitle>Our Products</IonTitle>
           <IonButtons slot="end">
             <IonButton onClick={handleDownloadCatalog}>
               <IonIcon icon={downloadOutline} slot="icon-only" />
@@ -100,28 +111,31 @@ const Products: React.FC = () => {
         <div className="catalog-subheader">
           <div className="header-flex">
             <IonText>
-              <h2>{selectedCategory === 'All' ? 'Our Product' : selectedCategory}</h2>
-              <p>Showing {filteredProducts.length} results</p>
+              <h2>Our Products</h2>
+              <p>
+                {selectedCategories.includes('All')
+                  ? 'Showing all items'
+                  : `Filtering ${selectedCategories.length} categories`}
+              </p>
             </IonText>
             <IonButton fill="outline" className="catalog-pdf-btn" onClick={handleDownloadCatalog}>
               <IonIcon icon={downloadOutline} slot="start" />
-              Download PDF
+              Catalog
             </IonButton>
           </div>
         </div>
 
-        {/* Search & Filter Wrapper */}
         <div className="search-filter-wrapper">
           <IonSearchbar
             value={searchText}
             onIonInput={(e) => setSearchText(e.detail.value!)}
-            placeholder="Search by product name..."
+            placeholder="Search products..."
             className="premium-searchbar"
             mode="ios"
             debounce={300}
           ></IonSearchbar>
           <IonButton
-            className={`premium-filter-btn ${selectedCategory !== 'All' ? 'active' : ''}`}
+            className={`premium-filter-btn ${!selectedCategories.includes('All') ? 'active' : ''}`}
             onClick={() => setIsFilterOpen(true)}
             fill="clear"
           >
@@ -129,20 +143,18 @@ const Products: React.FC = () => {
           </IonButton>
         </div>
 
-        {/* Categories Horizontal Scroll */}
         <div className="categories-scroll">
           {['All', ...CATEGORIES].map(cat => (
             <button
               key={cat}
-              className={`category-pill-btn ${selectedCategory === cat ? 'active' : ''}`}
-              onClick={() => setSelectedCategory(cat)}
+              className={`category-pill-btn ${selectedCategories.includes(cat) ? 'active' : ''}`}
+              onClick={() => toggleCategory(cat)}
             >
               {cat}
             </button>
           ))}
         </div>
 
-        {/* Products Grid */}
         <div className="products-grid-container">
           <div className="products-grid">
             {filteredProducts.map(product => (
@@ -158,19 +170,15 @@ const Products: React.FC = () => {
 
         {filteredProducts.length === 0 && (
           <div className="no-results-container">
-            <img
-              src="https://cdn-icons-png.flaticon.com/512/6134/6134065.png"
-              alt="No results"
-            />
+            <IonIcon icon={closeOutline} style={{ fontSize: '64px', color: '#ccc' }} />
             <h3>No Products Found</h3>
             <p>Try adjusting your search or filters</p>
-            <IonButton fill="outline" color="primary" onClick={() => { setSearchText(''); setSelectedCategory('All'); }}>
+            <IonButton fill="outline" color="primary" onClick={() => { setSearchText(''); setSelectedCategories(['All']); }}>
               Clear All Filters
             </IonButton>
           </div>
         )}
 
-        {/* Product Detail Modal */}
         <ProductModal
           product={selectedProduct}
           isOpen={isProductModalOpen}
@@ -178,37 +186,51 @@ const Products: React.FC = () => {
           onAddToCart={handleAddToCart}
         />
 
-        {/* Side Filter Modal */}
+        {/* Improved Bottom Sheet Filter */}
         <IonModal
+          ref={modal}
           isOpen={isFilterOpen}
           onDidDismiss={() => setIsFilterOpen(false)}
-          className="filter-modal"
-          backdropDismiss={true}
+          initialBreakpoint={0.65}
+          breakpoints={[0, 0.65, 0.9]}
+          className="filter-bottom-sheet"
         >
-          <div className="sidebar-container">
-            <h2 className="sidebar-title">Categories</h2>
-
-            <div className="category-group">
-              {['All', ...CATEGORIES].map(cat => (
-                <div
-                  key={cat}
-                  className={`category-link ${selectedCategory === cat ? 'active' : ''}`}
-                  onClick={() => changeCategory(cat)}
-                >
-                  <span>{cat}</span>
-                  <IonIcon icon={chevronForwardOutline} />
-                </div>
-              ))}
+          <div className="sheet-container">
+            <div className="sheet-header">
+              <div className="handle"></div>
+              <div className="title-row">
+                <h2>Filter Categories</h2>
+                <IonButton fill="clear" onClick={() => setIsFilterOpen(false)}>
+                  <IonIcon icon={checkmarkCircle} slot="start" />
+                  Done
+                </IonButton>
+              </div>
             </div>
 
-            <IonButton
-              className="sidebar-close-btn"
-              expand="block"
-              fill="solid"
-              onClick={() => setIsFilterOpen(false)}
-            >
-              VIEW PRODUCTS
-            </IonButton>
+            <IonContent className="ion-padding-horizontal">
+              <IonList className="category-select-list" lines="none">
+                {['All', ...CATEGORIES].map(cat => (
+                  <IonItem
+                    key={cat}
+                    className={`filter-item ${selectedCategories.includes(cat) ? 'selected' : ''}`}
+                    onClick={(e) => { e.preventDefault(); toggleCategory(cat); }}
+                  >
+                    <IonLabel className="filter-label-text">{cat}</IonLabel>
+                    <IonCheckbox
+                      slot="end"
+                      checked={selectedCategories.includes(cat)}
+                      style={{ pointerEvents: 'none' }}
+                    />
+                  </IonItem>
+                ))}
+              </IonList>
+            </IonContent>
+
+            <div className="sheet-footer">
+              <IonButton expand="block" className="apply-btn" onClick={() => setIsFilterOpen(false)}>
+                Apply Filters ({filteredProducts.length} Products)
+              </IonButton>
+            </div>
           </div>
         </IonModal>
       </IonContent>
