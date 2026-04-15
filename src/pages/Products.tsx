@@ -64,10 +64,13 @@ const Products: React.FC = () => {
     setIsProductModalOpen(true);
   };
 
-  const handleAddToCart = (product: Product, quantity: number, size?: string) => {
+  const handleAddToCart = (product: Product, quantity: number, size?: string, price?: number) => {
+    const finalPrice = price || product.basePrice;
+    const sizeInfo = size ? ` [${size}]` : '';
+
     present({
-      message: `Added ${quantity} x ${product.name} to cart!`,
-      duration: 1500,
+      message: `Added ${quantity} x ${product.name}${sizeInfo} - ₹${(finalPrice * quantity).toFixed(2)}`,
+      duration: 2000,
       position: 'bottom',
       color: 'success',
       mode: 'ios'

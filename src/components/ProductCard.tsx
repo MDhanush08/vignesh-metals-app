@@ -40,7 +40,14 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onClick, onAddToCart
 
       <div className="product-info">
         <h3 className="product-name">{product.name}</h3>
-        <p className="product-price">₹{product.price.toFixed(2)}</p>
+
+        <div className="price-container">
+          <p className="product-price">₹{product.basePrice.toFixed(2)}</p>
+          {product.sizeOptions && product.sizeOptions.length > 1 && (
+            <span className="variants-badge">+{product.sizeOptions.length} Sizes Available</span>
+          )}
+        </div>
+
         <p className="pack-size">{product.packSize}</p>
 
         <div className="card-actions">

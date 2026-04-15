@@ -36,7 +36,7 @@ const Cart: React.FC = () => {
       id: PRODUCTS[0].id,
       name: PRODUCTS[0].name,
       category: PRODUCTS[0].category,
-      price: PRODUCTS[0].price,
+      price: PRODUCTS[0].basePrice,
       quantity: 5,
       image: PRODUCTS[0].image
     },
@@ -44,7 +44,7 @@ const Cart: React.FC = () => {
       id: PRODUCTS[4].id,
       name: PRODUCTS[4].name,
       category: PRODUCTS[4].category,
-      price: PRODUCTS[4].price,
+      price: PRODUCTS[4].basePrice,
       quantity: 3,
       image: PRODUCTS[4].image
     },
