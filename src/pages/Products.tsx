@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import {
   IonContent,
   IonHeader,
@@ -15,7 +15,8 @@ import {
   IonCheckbox,
   IonList,
   IonItem,
-  IonLabel
+  IonLabel,
+  IonSpinner
 } from '@ionic/react';
 import {
   notificationsOutline,
@@ -26,10 +27,14 @@ import {
 } from 'ionicons/icons';
 import ProductCard from '../components/ProductCard';
 import ProductModal from '../components/ProductModal';
-import { PRODUCTS, CATEGORIES, Product } from '../data/products';
+import { Product } from '../data/products';
+import { getProducts, getCategories, ApiProduct } from '../services/productService';
 import './Products.css';
 
 const Products: React.FC = () => {
+  const [products, setProducts] = useState<Product[]>([]);
+  const [categories, setCategories] = useState<string[]>(['All']);
+  const [loading, setLoading] = useState(true);
   const [searchText, setSearchText] = useState('');
   const [selectedCategories, setSelectedCategories] = useState<string[]>(['All']);
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
@@ -38,7 +43,65 @@ const Products: React.FC = () => {
   const modal = useRef<HTMLIonModalElement>(null);
   const [present] = useIonToast();
 
-  const filteredProducts = PRODUCTS.filter(p => {
+  useEffect(() => {
+    loadData();
+  }, []);
+
+  const loadData = async () => {
+    setLoading(true);
+    try {
+      // Fetch categories first
+      let categoryMap: Record<string, string> = {};
+      try {
+        const catResponse = await getCategories();
+        console.log("response .... Categories", catResponse);
+        
+        const apiCats = catResponse.response.data;
+        apiCats.forEach(cat => {
+          categoryMap[cat._id] = cat.name;
+        });
+        setCategories(['All', ...apiCats.map(c => c.name)]);
+      } catch (catError) {
+        console.error('Error fetching categories:', catError);
+        setCategories(['All', 'Metal Works']);
+      }
+
+      // Fetch products
+      const response = await getProducts(1, 100);
+      console.log("response .... Produsts", response);
+      
+      const apiProducts = response.response.data;
+
+      const mappedProducts: Product[] = apiProducts.map((p: ApiProduct) => ({
+        id: p._id,
+        name: p.name,
+        basePrice: p.size[0]?.price || 0,
+        image: p.thumbnail,
+        category: categoryMap[p.category] || 'Metal Works',
+        packSize: p.item_code,
+        description: p.description,
+        sizeOptions: p.size.map(s => ({
+          label: s.name,
+          price: s.price || 0
+        }))
+      }));
+
+      setProducts(mappedProducts);
+
+    } catch (error) {
+      console.error('Error fetching data:', error);
+      present({
+        message: 'Failed to load products. Please try again.',
+        duration: 3000,
+        color: 'danger',
+        position: 'bottom'
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const filteredProducts = products.filter(p => {
     const matchesSearch = p.name.toLowerCase().includes(searchText.toLowerCase());
     const matchesCategory = selectedCategories.includes('All') || selectedCategories.includes(p.category);
     return matchesSearch && matchesCategory;
@@ -116,9 +179,11 @@ const Products: React.FC = () => {
             <IonText>
               <h2>Our Products</h2>
               <p>
-                {selectedCategories.includes('All')
-                  ? 'Showing all items'
-                  : `Filtering ${selectedCategories.length} categories`}
+                {loading ? 'Loading...' : (
+                  selectedCategories.includes('All')
+                    ? 'Showing all items'
+                    : `Filtering ${selectedCategories.length} categories`
+                )}
               </p>
             </IonText>
             <IonButton fill="outline" className="catalog-pdf-btn" onClick={handleDownloadCatalog}>
@@ -147,7 +212,7 @@ const Products: React.FC = () => {
         </div>
 
         <div className="categories-scroll">
-          {['All', ...CATEGORIES].map(cat => (
+          {categories.map(cat => (
             <button
               key={cat}
               className={`category-pill-btn ${selectedCategories.includes(cat) ? 'active' : ''}`}
@@ -159,19 +224,26 @@ const Products: React.FC = () => {
         </div>
 
         <div className="products-grid-container">
-          <div className="products-grid">
-            {filteredProducts.map(product => (
-              <ProductCard
-                key={product.id}
-                product={product}
-                onClick={handleProductClick}
-                onAddToCart={(p, q) => handleAddToCart(p, q)}
-              />
-            ))}
-          </div>
+          {loading ? (
+            <div className="ion-text-center ion-padding">
+              <IonSpinner name="crescent" color="primary" />
+              <p>Loading products...</p>
+            </div>
+          ) : (
+            <div className="products-grid">
+              {filteredProducts.map(product => (
+                <ProductCard
+                  key={product.id}
+                  product={product}
+                  onClick={handleProductClick}
+                  onAddToCart={(p, q) => handleAddToCart(p, q)}
+                />
+              ))}
+            </div>
+          )}
         </div>
 
-        {filteredProducts.length === 0 && (
+        {!loading && filteredProducts.length === 0 && (
           <div className="no-results-container">
             <IonIcon icon={closeOutline} style={{ fontSize: '64px', color: '#ccc' }} />
             <h3>No Products Found</h3>
@@ -189,7 +261,6 @@ const Products: React.FC = () => {
           onAddToCart={handleAddToCart}
         />
 
-        {/* Improved Bottom Sheet Filter */}
         <IonModal
           ref={modal}
           isOpen={isFilterOpen}
@@ -212,7 +283,7 @@ const Products: React.FC = () => {
 
             <IonContent className="ion-padding-horizontal">
               <IonList className="category-select-list" lines="none">
-                {['All', ...CATEGORIES].map(cat => (
+                {categories.map(cat => (
                   <IonItem
                     key={cat}
                     className={`filter-item ${selectedCategories.includes(cat) ? 'selected' : ''}`}

@@ -1,22 +1,15 @@
 import {
   IonContent,
-  IonHeader,
   IonPage,
-  IonTitle,
+  IonHeader,
   IonToolbar,
-  IonButtons,
+  IonTitle,
   IonIcon,
-  IonButton,
-  IonAvatar,
   IonText,
-  IonGrid,
-  IonRow,
-  IonCol,
   useIonAlert,
   IonRippleEffect
 } from '@ionic/react';
 import {
-  notificationsOutline,
   logOutOutline,
   mailOutline,
   personOutline,
@@ -27,17 +20,13 @@ import {
 } from 'ionicons/icons';
 import React from 'react';
 import { useHistory } from 'react-router-dom';
+import { authService } from '../services/authService';
 import './Profile.css';
 
 const Profile: React.FC = () => {
   const history = useHistory();
   const [presentAlert] = useIonAlert();
-
-  const salesperson = {
-    name: 'Dhanush M',
-    email: 'dhanush@vigneshmetals.com',
-    totalOrders: 148
-  };
+  const user = authService.getUser();
 
   const handleLogout = () => {
     presentAlert({
@@ -54,7 +43,10 @@ const Profile: React.FC = () => {
           text: 'Sign Out',
           role: 'confirm',
           cssClass: 'alert-button-confirm',
-          handler: () => history.push('/login')
+          handler: () => {
+            authService.logout();
+            window.location.href = '/login';
+          }
         }
       ],
       mode: 'ios'
@@ -63,6 +55,11 @@ const Profile: React.FC = () => {
 
   return (
     <IonPage>
+      {/* <IonHeader className="ion-no-border">
+        <IonToolbar className="profile-header">
+          <IonTitle>My Profile</IonTitle>
+        </IonToolbar>
+      </IonHeader> */}
 
       <IonContent className="profile-content">
         <div className="profile-hero">
@@ -75,8 +72,8 @@ const Profile: React.FC = () => {
             <div className="status-online"></div>
           </div>
           <IonText className="profile-name">
-            <h2>{salesperson.name}</h2>
-            <p>Sales Executive</p>
+            <h2>{user?.name || 'User'}</h2>
+            <p>{user?.user_type === 1 ? 'Administrator' : 'Sales Executive'}</p>
           </IonText>
         </div>
 
@@ -86,7 +83,7 @@ const Profile: React.FC = () => {
               <IonIcon icon={cartOutline} />
             </div>
             <div className="stat-info">
-              <span className="stat-value">{salesperson.totalOrders}</span>
+              <span className="stat-value">148</span>
               <span className="stat-label">Total Orders</span>
             </div>
           </div>
@@ -110,7 +107,7 @@ const Profile: React.FC = () => {
               </div>
               <div className="detail-info">
                 <span className="label">Full Name</span>
-                <span className="value">{salesperson.name}</span>
+                <span className="value">{user?.name || 'N/A'}</span>
               </div>
             </div>
             <div className="detail-item">
@@ -119,7 +116,7 @@ const Profile: React.FC = () => {
               </div>
               <div className="detail-info">
                 <span className="label">Email ID</span>
-                <span className="value">{salesperson.email}</span>
+                <span className="value">{user?.email || 'N/A'}</span>
               </div>
             </div>
           </div>
@@ -154,3 +151,4 @@ const Profile: React.FC = () => {
 };
 
 export default Profile;
+

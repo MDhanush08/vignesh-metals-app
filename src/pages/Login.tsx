@@ -2,12 +2,13 @@ import {
   IonContent,
   IonPage,
   IonInput,
-  IonItem,
   IonButton,
   IonIcon,
   IonText,
   IonCheckbox,
-  IonLabel
+  IonLabel,
+  useIonToast,
+  useIonLoading
 } from '@ionic/react';
 import React, { useState } from 'react';
 import { useHistory } from 'react-router-dom';
@@ -17,15 +18,54 @@ import {
   mailOutline,
   lockClosedOutline
 } from 'ionicons/icons';
+import { authService } from '../services/authService';
 import './Login.css';
 
 const Login: React.FC = () => {
   const history = useHistory();
   const [showPassword, setShowPassword] = useState(false);
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [presentToast] = useIonToast();
+  const [presentLoading, dismissLoading] = useIonLoading();
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    history.push('/app/dashboard');
+
+    await presentLoading({
+      message: 'Signing in...',
+      duration: 5000,
+    });
+
+    try {
+      const apiResponse = await authService.login({ email, password });
+
+      if (apiResponse && apiResponse.response) {
+        // Store token and user data from the nested response object
+        localStorage.setItem('token', apiResponse.response.token);
+        localStorage.setItem('user', JSON.stringify(apiResponse.response));
+      }
+
+      await dismissLoading();
+
+      presentToast({
+        message: 'Login successful!',
+        duration: 2000,
+        color: 'success',
+        position: 'top'
+      });
+
+      // Navigate to dashboard
+      history.push('/app/dashboard');
+    } catch (error: any) {
+      await dismissLoading();
+      presentToast({
+        message: error.message || 'Login failed. Please check your credentials.',
+        duration: 3000,
+        color: 'danger',
+        position: 'top'
+      });
+    }
   };
 
   return (
@@ -58,6 +98,8 @@ const Login: React.FC = () => {
                 <IonIcon icon={mailOutline} className="input-prefix-icon" />
                 <IonInput
                   type="email"
+                  value={email}
+                  onIonInput={(e) => setEmail(e.detail.value!)}
                   placeholder="name@vigneshmetals.com"
                   className="login-input-field"
                   required
@@ -71,6 +113,8 @@ const Login: React.FC = () => {
                 <IonIcon icon={lockClosedOutline} className="input-prefix-icon" />
                 <IonInput
                   type={showPassword ? "text" : "password"}
+                  value={password}
+                  onIonInput={(e) => setPassword(e.detail.value!)}
                   placeholder="••••••••"
                   className="login-input-field"
                   required
@@ -113,3 +157,4 @@ const Login: React.FC = () => {
 };
 
 export default Login;
+

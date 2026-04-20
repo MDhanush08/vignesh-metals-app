@@ -13,7 +13,9 @@ import {
   IonCardContent,
   IonBadge,
   IonText,
-  IonSearchbar
+  IonSearchbar,
+  IonSpinner,
+  useIonToast
 } from '@ionic/react';
 import {
   notificationsOutline,
@@ -23,7 +25,8 @@ import {
   filterOutline,
   cubeOutline
 } from 'ionicons/icons';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { getOrders, ApiOrder } from '../services/orderService';
 import './OrderHistory.css';
 
 const OrderHistory: React.FC = () => {
@@ -31,41 +34,44 @@ const OrderHistory: React.FC = () => {
   const [statusFilter, setStatusFilter] = useState('All');
   const [typeFilter, setTypeFilter] = useState('All');
   const [isFilterOpen, setIsFilterOpen] = useState(false);
+  const [orders, setOrders] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [present] = useIonToast();
 
   const statuses = ['All', 'Delivered', 'Processing', 'In Transit', 'Cancelled'];
   const types = ['All', 'General', 'Emergency'];
 
-  // Mock data for Order Review
-  const orders = [
-    {
-      id: 'ORD-7742',
-      shopName: 'Bala Metals & Steels',
-      type: 'Emergency',
-      date: '2024-03-05',
-      status: 'In Transit'
-    },
-    {
-      id: 'ORD-7741',
-      shopName: 'Sri Vinayaga Hardware',
-      type: 'General',
-      date: '2024-03-04',
-      status: 'Delivered'
-    },
-    {
-      id: 'ORD-7740',
-      shopName: 'Modern Build Solutions',
-      type: 'General',
-      date: '2024-03-02',
-      status: 'Processing'
-    },
-    {
-      id: 'ORD-7739',
-      shopName: 'Royal Steel Traders',
-      type: 'Emergency',
-      date: '2024-03-01',
-      status: 'Cancelled'
-    },
-  ];
+  useEffect(() => {
+    fetchOrders();
+  }, []);
+
+  const fetchOrders = async () => {
+    setLoading(true);
+    try {
+      const result = await getOrders(1, 50);
+      console.log("response .... Orders", result);
+
+      const mappedOrders = result.response.data.map((o: ApiOrder) => ({
+        id: o.order_number || o._id.substring(0, 8),
+        realId: o._id,
+        shopName: o.email.split('@')[0].toUpperCase() || 'CLIENT', // Fallback to email prefix
+        type: o.order_type === 1 ? 'General' : 'Emergency',
+        date: new Date(o.approve_at || Date.now()).toLocaleDateString(),
+        status: o.status === 1 ? 'Processing' : o.status === 2 ? 'In Transit' : 'Delivered'
+      }));
+
+      setOrders(mappedOrders);
+    } catch (error) {
+      console.error('Error fetching orders:', error);
+      present({
+        message: 'Failed to load orders.',
+        duration: 2000,
+        color: 'danger'
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const filteredOrders = orders.filter(o => {
     const matchesSearch = o.id.toLowerCase().includes(searchText.toLowerCase()) ||
@@ -74,8 +80,6 @@ const OrderHistory: React.FC = () => {
     const matchesType = typeFilter === 'All' || o.type === typeFilter;
     return matchesSearch && matchesStatus && matchesType;
   });
-
-
 
   return (
     <IonPage>
@@ -143,12 +147,17 @@ const OrderHistory: React.FC = () => {
         </div>
 
         <div className="orders-list">
-          {filteredOrders.length > 0 ? (
+          {loading ? (
+            <div className="ion-text-center ion-padding">
+              <IonSpinner name="crescent" color="primary" />
+              <p>Loading orders...</p>
+            </div>
+          ) : filteredOrders.length > 0 ? (
             filteredOrders.map((order) => (
               <IonCard
-                key={order.id}
+                key={order.realId}
                 className="review-card ion-activatable"
-                routerLink={`/app/orders/${order.id}`}
+                routerLink={`/app/orders/${order.realId}`}
               >
                 <div className={`status-border ${order.status.toLowerCase().replace(' ', '-')}`}></div>
                 <IonCardHeader>
@@ -182,7 +191,7 @@ const OrderHistory: React.FC = () => {
                       fill="clear"
                       size="small"
                       className="details-link"
-                      routerLink={`/app/orders/${order.id}`}
+                      routerLink={`/app/orders/${order.realId}`}
                     >
                       View Full Details
                       <IonIcon icon={chevronForwardOutline} slot="end" />

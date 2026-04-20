@@ -3,6 +3,8 @@ import { IonApp, IonRouterOutlet, setupIonicReact } from '@ionic/react';
 import { IonReactRouter } from '@ionic/react-router';
 import Login from './pages/Login';
 import MainTabs from './components/MainTabs';
+import PrivateRoute from './components/PrivateRoute';
+import { authService } from './services/authService';
 
 /* Core CSS required for Ionic components to work properly */
 import '@ionic/react/css/core.css';
@@ -41,13 +43,11 @@ const App: React.FC = () => (
     <IonReactRouter>
       <IonRouterOutlet>
         <Route exact path="/login">
-          <Login />
+          {authService.isAuthenticated() ? <Redirect to="/app/dashboard" /> : <Login />}
         </Route>
-        <Route path="/app">
-          <MainTabs />
-        </Route>
+        <PrivateRoute path="/app" component={MainTabs} />
         <Route exact path="/">
-          <Redirect to="/login" />
+          <Redirect to="/app/dashboard" />
         </Route>
       </IonRouterOutlet>
     </IonReactRouter>
@@ -55,3 +55,4 @@ const App: React.FC = () => (
 );
 
 export default App;
+

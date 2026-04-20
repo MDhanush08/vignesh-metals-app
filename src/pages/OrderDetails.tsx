@@ -8,7 +8,9 @@ import {
   IonIcon,
   IonButton,
   IonText,
-  useIonViewWillEnter
+  useIonViewWillEnter,
+  IonSpinner,
+  useIonToast
 } from '@ionic/react';
 import {
   calendarOutline,
@@ -22,35 +24,63 @@ import {
 } from 'ionicons/icons';
 import React, { useState } from 'react';
 import { useParams, useHistory } from 'react-router-dom';
+import { getOrderById } from '../services/orderService';
 import './OrderDetails.css';
 
 const OrderDetails: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const history = useHistory();
   const [order, setOrder] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+  const [present] = useIonToast();
 
   useIonViewWillEnter(() => {
-    // Mock data based on the provided ID
-    setTimeout(() => {
-      setOrder({
-        id: id || 'ORD-7742',
-        shopName: 'Bala Metals & Steels',
-        type: 'Emergency',
-        date: '2024-03-05',
-        status: 'In Transit',
-        address: '123, Industrial Street, Chennai, TN - 600032',
-        phone: '+91 98765 43210',
-        expectedDate: '2024-03-10',
-        items: [
-          { name: 'Steel Rod 12mm', qty: '100 Units', rate: '₹450.00', GST: '5%', total: '₹47,250.00' },
-          { name: 'Iron Beam 6m', qty: '20 Units', rate: '₹2,500.00', GST: '5%', total: '₹52,500.00' }
-        ],
-        subtotal: '₹95,000.00',
-        gstTotal: '₹4,750.00',
-        grandTotal: '₹99,750.00'
-      });
-    }, 50);
+    fetchOrderDetails();
   });
+
+  const fetchOrderDetails = async () => {
+    if (!id) return;
+    setLoading(true);
+    try {
+      const result = await getOrderById(id);
+      console.log("response .... Order Details", result);
+      const data = result.response;
+
+      // Map API response to UI structure
+      const mappedOrder = {
+        id: data.order_number || data._id.substring(0, 8),
+        shopName: data.email.split('@')[0].toUpperCase() || 'CLIENT',
+        type: data.order_type === 1 ? 'General' : 'Emergency',
+        date: new Date(data.created_at || Date.now()).toLocaleDateString(),
+        status: data.status === 1 ? 'Processing' : data.status === 2 ? 'In Transit' : 'Delivered',
+        address: data.address,
+        phone: `+${data.country_code} ${data.phone}`,
+        expectedDate: data.approve_at ? new Date(data.approve_at).toLocaleDateString() : 'TBD',
+        items: (data.items_list || []).map((item: any, idx: number) => ({
+          name: item.name || 'Product',
+          qty: `${item.quantity} Units`,
+          rate: `₹${(item.price || 0).toFixed(2)}`,
+          GST: '18%', // Standard GST or as per logic
+          total: `₹${((item.price || 0) * (item.quantity || 0) * 1.18).toFixed(2)}`
+        })),
+        // Calculate totals
+        subtotal: `₹${(data.items_list || []).reduce((acc: number, curr: any) => acc + (curr.price * curr.quantity), 0).toFixed(2)}`,
+        gstTotal: `₹${(data.items_list || []).reduce((acc: number, curr: any) => acc + (curr.price * curr.quantity * 0.18), 0).toFixed(2)}`,
+        grandTotal: `₹${(data.items_list || []).reduce((acc: number, curr: any) => acc + (curr.price * curr.quantity * 1.18), 0).toFixed(2)}`
+      };
+
+      setOrder(mappedOrder);
+    } catch (error) {
+      console.error('Error fetching order details:', error);
+      present({
+        message: 'Error loading order details.',
+        duration: 2000,
+        color: 'danger'
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleDownloadPDF = () => {
     console.log('Generating PDF Invoice...');
@@ -65,7 +95,7 @@ const OrderDetails: React.FC = () => {
               <IonIcon icon={arrowBack} slot="icon-only" />
             </IonButton>
           </IonButtons>
-          <IonTitle>Order #{order?.id || id || '...'}</IonTitle>
+          <IonTitle>Order #{order?.id || '...'}</IonTitle>
           <IonButtons slot="end">
             <IonButton>
               <IonIcon icon={notificationsOutline} slot="icon-only" />
@@ -75,7 +105,12 @@ const OrderDetails: React.FC = () => {
       </IonHeader>
 
       <IonContent className="order-details-content">
-        {order ? (
+        {loading ? (
+          <div className="ion-text-center ion-padding">
+            <IonSpinner name="crescent" color="primary" />
+            <p>Loading order details...</p>
+          </div>
+        ) : order ? (
           <div className="modal-body-padding">
             <div className="top-action-bar">
               <button className="screenshot-pdf-btn" onClick={handleDownloadPDF}>
@@ -97,7 +132,7 @@ const OrderDetails: React.FC = () => {
                   <div className="icon-wrap"><IonIcon icon={calendarOutline} /></div>
                   <div className="text-wrap">
                     <span className="label">Ordered On</span>
-                    <span className="value">{order.date}, 10:00 PM</span>
+                    <span className="value">{order.date}</span>
                   </div>
                 </div>
                 <div className="hero-item">
@@ -134,23 +169,25 @@ const OrderDetails: React.FC = () => {
                   <IonIcon icon={cubeOutline} className="title-icon" />
                   <h4>Order Items</h4>
                 </div>
-                <button className="inline-edit-btn">Edit</button>
               </div>
 
               <div className="items-table">
-                {order.items.map((item: any, idx: number) => (
-                  <div key={idx} className="table-item-row">
-                    <div className="item-details">
-                      <p className="item-name-qty">{item.qty} {item.name}</p>
-                      <p className="item-code">Item Code: {700119 + idx}</p>
-                      <p className="item-pricing">Rate: {item.rate} per UNIT</p>
-                      <p className="item-pricing">GST (5%): Included</p>
+                {order.items.length > 0 ? (
+                  order.items.map((item: any, idx: number) => (
+                    <div key={idx} className="table-item-row">
+                      <div className="item-details">
+                        <p className="item-name-qty">{item.qty} {item.name}</p>
+                        <p className="item-pricing">Rate: {item.rate} per UNIT</p>
+                        <p className="item-pricing">GST (18%): Included</p>
+                      </div>
+                      <div className="item-total">
+                        {item.total}
+                      </div>
                     </div>
-                    <div className="item-total">
-                      {item.total}
-                    </div>
-                  </div>
-                ))}
+                  ))
+                ) : (
+                  <p className="ion-text-center ion-padding">No items found in this order.</p>
+                )}
               </div>
 
               <div className="summary-section">
@@ -159,7 +196,7 @@ const OrderDetails: React.FC = () => {
                   <span>{order.subtotal}</span>
                 </div>
                 <div className="summary-row">
-                  <span>GST (5%)</span>
+                  <span>GST (18%)</span>
                   <span>{order.gstTotal}</span>
                 </div>
                 <div className="summary-row grand-total">
@@ -171,7 +208,7 @@ const OrderDetails: React.FC = () => {
           </div>
         ) : (
           <div className="ion-padding ion-text-center">
-            <IonText color="medium">Loading order details...</IonText>
+            <IonText color="medium">Order not found.</IonText>
           </div>
         )}
       </IonContent>
