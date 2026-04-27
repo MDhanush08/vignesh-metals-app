@@ -23,6 +23,9 @@ import Cart from '../pages/Cart';
 import OrderHistory from '../pages/OrderHistory';
 import OrderDetails from '../pages/OrderDetails';
 import Profile from '../pages/Profile';
+import Clients from '../pages/Clients';
+import ClientDetails from '../pages/ClientDetails';
+import AddEditClient from '../pages/AddEditClient';
 
 import './MainTabs.css';
 
@@ -44,6 +47,18 @@ const MainTabs: React.FC = () => {
         </Route>
         <Route exact path="/app/orders">
           <OrderHistory />
+        </Route>
+        <Route exact path="/app/clients-add">
+          <AddEditClient />
+        </Route>
+        <Route exact path="/app/clients-edit/:id">
+          <AddEditClient />
+        </Route>
+        <Route exact path="/app/clients/:id">
+          <ClientDetails />
+        </Route>
+        <Route exact path="/app/clients">
+          <Clients />
         </Route>
         <Route exact path="/app/profile">
           <Profile />

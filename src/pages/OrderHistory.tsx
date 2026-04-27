@@ -15,7 +15,8 @@ import {
   IonText,
   IonSearchbar,
   IonSpinner,
-  useIonToast
+  useIonToast,
+  useIonViewWillEnter
 } from '@ionic/react';
 import {
   notificationsOutline,
@@ -26,10 +27,12 @@ import {
   cubeOutline
 } from 'ionicons/icons';
 import React, { useState, useEffect } from 'react';
+import { useHistory } from 'react-router-dom';
 import { getOrders, ApiOrder } from '../services/orderService';
 import './OrderHistory.css';
 
 const OrderHistory: React.FC = () => {
+  const history = useHistory();
   const [searchText, setSearchText] = useState('');
   const [statusFilter, setStatusFilter] = useState('All');
   const [typeFilter, setTypeFilter] = useState('All');
@@ -41,9 +44,9 @@ const OrderHistory: React.FC = () => {
   const statuses = ['All', 'Delivered', 'Processing', 'In Transit', 'Cancelled'];
   const types = ['All', 'General', 'Emergency'];
 
-  useEffect(() => {
+  useIonViewWillEnter(() => {
     fetchOrders();
-  }, []);
+  });
 
   const fetchOrders = async () => {
     setLoading(true);
@@ -157,7 +160,12 @@ const OrderHistory: React.FC = () => {
               <IonCard
                 key={order.realId}
                 className="review-card ion-activatable"
-                routerLink={`/app/orders/${order.realId}`}
+                onClick={() => {
+                  if (document.activeElement instanceof HTMLElement) {
+                    document.activeElement.blur();
+                  }
+                  history.push(`/app/orders/${order.realId}`);
+                }}
               >
                 <div className={`status-border ${order.status.toLowerCase().replace(' ', '-')}`}></div>
                 <IonCardHeader>
@@ -191,7 +199,13 @@ const OrderHistory: React.FC = () => {
                       fill="clear"
                       size="small"
                       className="details-link"
-                      routerLink={`/app/orders/${order.realId}`}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        if (document.activeElement instanceof HTMLElement) {
+                          document.activeElement.blur();
+                        }
+                        history.push(`/app/orders/${order.realId}`);
+                      }}
                     >
                       View Full Details
                       <IonIcon icon={chevronForwardOutline} slot="end" />

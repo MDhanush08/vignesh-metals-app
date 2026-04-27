@@ -91,7 +91,12 @@ const OrderDetails: React.FC = () => {
       <IonHeader className="ion-no-border">
         <IonToolbar className="order-details-header">
           <IonButtons slot="start">
-            <IonButton onClick={() => history.goBack()}>
+            <IonButton onClick={() => {
+              if (document.activeElement instanceof HTMLElement) {
+                document.activeElement.blur();
+              }
+              history.goBack();
+            }}>
               <IonIcon icon={arrowBack} slot="icon-only" />
             </IonButton>
           </IonButtons>

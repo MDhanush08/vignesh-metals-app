@@ -1,0 +1,139 @@
+.clients-header {
+  --background: #fff;
+  --color: #000;
+}
+
+.clients-content {
+  --background: #f8f9fa;
+}
+
+.search-wrapper {
+  padding: 16px;
+  background: #fff;
+  border-bottom-left-radius: 20px;
+  border-bottom-right-radius: 20px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+.premium-searchbar {
+  --background: #f1f3f5;
+  --border-radius: 12px;
+  padding: 0;
+}
+
+.clients-list {
+  padding: 16px;
+}
+
+.client-card {
+  margin: 0 0 16px 0;
+  border-radius: 16px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+  border: none;
+  overflow: hidden;
+  position: relative;
+  background: #fff;
+}
+
+.card-top-accent {
+  height: 4px;
+  background: linear-gradient(90deg, #007bff, #00d4ff);
+}
+
+.client-header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.client-code-tag {
+  background: #e7f1ff;
+  color: #007bff;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+}
+
+.avatar-icon {
+  font-size: 24px;
+  color: #adb5bd;
+}
+
+.client-name {
+  font-size: 18px;
+  font-weight: 700;
+  color: #212529;
+  letter-spacing: -0.2px;
+}
+
+.client-info-grid {
+  margin-top: 12px;
+}
+
+.info-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+  color: #6c757d;
+  font-size: 14px;
+}
+
+.info-row ion-icon {
+  font-size: 16px;
+  color: #adb5bd;
+}
+
+.truncate {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.card-action {
+  border-top: 1px solid #f1f3f5;
+  margin-top: 16px;
+  padding-top: 8px;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.view-details-btn {
+  --color: #007bff;
+  font-weight: 600;
+  font-size: 13px;
+}
+
+.no-clients-found {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 40px;
+  text-align: center;
+}
+
+.empty-icon {
+  font-size: 80px;
+  color: #dee2e6;
+  margin-bottom: 20px;
+}
+
+.no-clients-found h3 {
+  font-weight: 700;
+  margin-bottom: 8px;
+  color: #495057;
+}
+
+.no-clients-found p {
+  color: #6c757d;
+  margin-bottom: 24px;
+}
+
+.custom-fab {
+  --background: #007bff;
+  --background-activated: #0056b3;
+}

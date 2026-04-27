@@ -7,7 +7,8 @@ import {
   IonIcon,
   IonText,
   useIonAlert,
-  IonRippleEffect
+  IonRippleEffect,
+  IonSpinner
 } from '@ionic/react';
 import {
   logOutOutline,
@@ -16,17 +17,34 @@ import {
   cartOutline,
   chevronForwardOutline,
   shieldCheckmarkOutline,
-  lockClosedOutline
+  lockClosedOutline,
+  peopleOutline
 } from 'ionicons/icons';
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useHistory } from 'react-router-dom';
 import { authService } from '../services/authService';
+import { getClients } from '../services/clientService';
 import './Profile.css';
 
 const Profile: React.FC = () => {
   const history = useHistory();
   const [presentAlert] = useIonAlert();
   const user = authService.getUser();
+  const [clientCount, setClientCount] = useState<number | null>(null);
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    fetchClientCount();
+  }, []);
+
+  const fetchClientCount = async () => {
+    try {
+      const response = await getClients(1, 1);
+      setClientCount(response.response.total);
+    } catch (error) {
+      console.error('Error fetching client count:', error);
+    }
+  };
 
   const handleLogout = () => {
     presentAlert({
@@ -55,12 +73,6 @@ const Profile: React.FC = () => {
 
   return (
     <IonPage>
-      {/* <IonHeader className="ion-no-border">
-        <IonToolbar className="profile-header">
-          <IonTitle>My Profile</IonTitle>
-        </IonToolbar>
-      </IonHeader> */}
-
       <IonContent className="profile-content">
         <div className="profile-hero">
           <div className="avatar-container">
@@ -87,13 +99,16 @@ const Profile: React.FC = () => {
               <span className="stat-label">Total Orders</span>
             </div>
           </div>
-          <div className="stat-card">
+          <div className="stat-card ion-activatable" onClick={() => history.push('/app/clients')}>
+            <IonRippleEffect />
             <div className="stat-icon active">
-              <IonIcon icon={shieldCheckmarkOutline} />
+              <IonIcon icon={peopleOutline} />
             </div>
             <div className="stat-info">
-              <span className="stat-value">Active</span>
-              <span className="stat-label">Status</span>
+              <span className="stat-value">
+                {clientCount !== null ? clientCount : <IonSpinner name="dots" />}
+              </span>
+              <span className="stat-label">Clients</span>
             </div>
           </div>
         </div>

@@ -1,0 +1,108 @@
+.add-edit-header {
+  --background: #fff;
+  --color: #000;
+}
+
+.add-edit-content {
+  --background: #f8f9fa;
+}
+
+.form-container {
+  padding: 12px;
+}
+
+.form-section {
+  background: #fff;
+  border-radius: 16px;
+  padding: 16px;
+  margin-bottom: 12px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+}
+
+.form-section-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: #007bff;
+  margin-bottom: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.input-field-wrapper {
+  margin-bottom: 12px;
+}
+
+.field-label {
+  display: block;
+  font-size: 11px;
+  font-weight: 700;
+  color: #adb5bd;
+  margin-bottom: 4px;
+  padding-left: 4px;
+}
+
+.input-inner {
+  display: flex;
+  align-items: center;
+  background: #f1f3f5;
+  border-radius: 10px;
+  padding: 0 12px;
+  height: 44px;
+  gap: 10px;
+  transition: all 0.3s ease;
+}
+
+.input-inner:focus-within {
+  background: #e7f1ff;
+  box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.1);
+}
+
+.input-inner ion-icon {
+  font-size: 18px;
+  color: #adb5bd;
+}
+
+.input-inner ion-input {
+  --padding-start: 0;
+  font-size: 13.5px;
+  font-weight: 600;
+  color: #343a40;
+}
+
+.input-inner.no-icon {
+  padding-left: 12px;
+}
+
+.input-row {
+  display: flex;
+  gap: 12px;
+}
+
+.flex-1 {
+  flex: 1;
+}
+
+.small {
+  width: 60px;
+}
+
+.full-width-select {
+  width: 100%;
+  --padding-start: 0;
+}
+
+.action-button-wrapper {
+  margin-top: 20px;
+  padding-bottom: 30px;
+}
+
+.submit-btn-premium {
+  --background: #007bff;
+  --border-radius: 12px;
+  --padding-top: 16px;
+  --padding-bottom: 16px;
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  box-shadow: 0 6px 15px rgba(0, 123, 255, 0.25);
+}
