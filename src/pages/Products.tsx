@@ -29,6 +29,7 @@ import ProductCard from '../components/ProductCard';
 import ProductModal from '../components/ProductModal';
 import { Product } from '../data/products';
 import { getProducts, getCategories, ApiProduct } from '../services/productService';
+import { useCart } from '../context/CartContext';
 import './Products.css';
 
 const Products: React.FC = () => {
@@ -38,10 +39,12 @@ const Products: React.FC = () => {
   const [searchText, setSearchText] = useState('');
   const [selectedCategories, setSelectedCategories] = useState<string[]>(['All']);
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
+  const [initialModalQuantity, setInitialModalQuantity] = useState(1);
   const [isProductModalOpen, setIsProductModalOpen] = useState(false);
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const modal = useRef<HTMLIonModalElement>(null);
   const [present] = useIonToast();
+  const { addItem } = useCart();
 
   useEffect(() => {
     loadData();
@@ -55,7 +58,7 @@ const Products: React.FC = () => {
       try {
         const catResponse = await getCategories();
         console.log("response .... Categories", catResponse);
-        
+
         const apiCats = catResponse.response.data;
         apiCats.forEach(cat => {
           categoryMap[cat._id] = cat.name;
@@ -69,7 +72,7 @@ const Products: React.FC = () => {
       // Fetch products
       const response = await getProducts(1, 100);
       console.log("response .... Produsts", response);
-      
+
       const apiProducts = response.response.data;
 
       const mappedProducts: Product[] = apiProducts.map((p: ApiProduct) => ({
@@ -81,8 +84,12 @@ const Products: React.FC = () => {
         packSize: p.item_code,
         description: p.description,
         sizeOptions: p.size.map(s => ({
+          id: s._id,
           label: s.name,
-          price: s.price || 0
+          price: s.price || 0,
+          HT: s.HT,
+          BT: s.BT,
+          WT: s.WT
         }))
       }));
 
@@ -122,17 +129,27 @@ const Products: React.FC = () => {
     }
   };
 
-  const handleProductClick = (product: Product) => {
+  const handleProductClick = (product: Product, quantity: number) => {
     setSelectedProduct(product);
+    setInitialModalQuantity(quantity);
     setIsProductModalOpen(true);
   };
 
-  const handleAddToCart = (product: Product, quantity: number, size?: string, price?: number) => {
-    const finalPrice = price || product.basePrice;
+  const handleAddToCart = (product: Product, quantity: number, size?: string, price?: number, sizeId?: string) => {
+    addItem({
+      id: product.id,
+      name: product.name,
+      category: product.category,
+      image: product.image,
+      quantity: quantity,
+      size: size,
+      sizeId: sizeId
+    });
+
     const sizeInfo = size ? ` [${size}]` : '';
 
     present({
-      message: `Added ${quantity} x ${product.name}${sizeInfo} - ₹${(finalPrice * quantity).toFixed(2)}`,
+      message: `Added ${quantity} x ${product.name}${sizeInfo}`,
       duration: 2000,
       position: 'bottom',
       color: 'success',
@@ -236,7 +253,7 @@ const Products: React.FC = () => {
                   key={product.id}
                   product={product}
                   onClick={handleProductClick}
-                  onAddToCart={(p, q) => handleAddToCart(p, q)}
+                  onAddToCart={handleAddToCart}
                 />
               ))}
             </div>
@@ -256,6 +273,7 @@ const Products: React.FC = () => {
 
         <ProductModal
           product={selectedProduct}
+          initialQuantity={initialModalQuantity}
           isOpen={isProductModalOpen}
           onClose={() => setIsProductModalOpen(false)}
           onAddToCart={handleAddToCart}

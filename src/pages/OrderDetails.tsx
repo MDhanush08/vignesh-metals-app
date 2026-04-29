@@ -24,7 +24,7 @@ import {
 } from 'ionicons/icons';
 import React, { useState } from 'react';
 import { useParams, useHistory } from 'react-router-dom';
-import { getOrderById } from '../services/orderService';
+import { getOrderById, getOrderDownloadUrl } from '../services/orderService';
 import './OrderDetails.css';
 
 const OrderDetails: React.FC = () => {
@@ -56,17 +56,11 @@ const OrderDetails: React.FC = () => {
         address: data.address,
         phone: `+${data.country_code} ${data.phone}`,
         expectedDate: data.approve_at ? new Date(data.approve_at).toLocaleDateString() : 'TBD',
-        items: (data.items_list || []).map((item: any, idx: number) => ({
+        items: (data.items_list || []).map((item: any) => ({
           name: item.name || 'Product',
           qty: `${item.quantity} Units`,
-          rate: `₹${(item.price || 0).toFixed(2)}`,
-          GST: '18%', // Standard GST or as per logic
-          total: `₹${((item.price || 0) * (item.quantity || 0) * 1.18).toFixed(2)}`
-        })),
-        // Calculate totals
-        subtotal: `₹${(data.items_list || []).reduce((acc: number, curr: any) => acc + (curr.price * curr.quantity), 0).toFixed(2)}`,
-        gstTotal: `₹${(data.items_list || []).reduce((acc: number, curr: any) => acc + (curr.price * curr.quantity * 0.18), 0).toFixed(2)}`,
-        grandTotal: `₹${(data.items_list || []).reduce((acc: number, curr: any) => acc + (curr.price * curr.quantity * 1.18), 0).toFixed(2)}`
+          size: item.size || 'Standard'
+        }))
       };
 
       setOrder(mappedOrder);
@@ -83,7 +77,18 @@ const OrderDetails: React.FC = () => {
   };
 
   const handleDownloadPDF = () => {
-    console.log('Generating PDF Invoice...');
+    if (!id) return;
+    const downloadUrl = getOrderDownloadUrl(id);
+
+    present({
+      message: 'Opening order PDF...',
+      duration: 2000,
+      color: 'success',
+      position: 'bottom'
+    });
+
+    // Open in new tab to trigger download
+    window.open(downloadUrl, '_blank');
   };
 
   return (
@@ -182,32 +187,13 @@ const OrderDetails: React.FC = () => {
                     <div key={idx} className="table-item-row">
                       <div className="item-details">
                         <p className="item-name-qty">{item.qty} {item.name}</p>
-                        <p className="item-pricing">Rate: {item.rate} per UNIT</p>
-                        <p className="item-pricing">GST (18%): Included</p>
-                      </div>
-                      <div className="item-total">
-                        {item.total}
+                        <p className="item-spec">Size: {item.size}</p>
                       </div>
                     </div>
                   ))
                 ) : (
                   <p className="ion-text-center ion-padding">No items found in this order.</p>
                 )}
-              </div>
-
-              <div className="summary-section">
-                <div className="summary-row">
-                  <span>Subtotal</span>
-                  <span>{order.subtotal}</span>
-                </div>
-                <div className="summary-row">
-                  <span>GST (18%)</span>
-                  <span>{order.gstTotal}</span>
-                </div>
-                <div className="summary-row grand-total">
-                  <span>Grand Total</span>
-                  <span>{order.grandTotal}</span>
-                </div>
               </div>
             </div>
           </div>

@@ -26,10 +26,12 @@ import Profile from '../pages/Profile';
 import Clients from '../pages/Clients';
 import ClientDetails from '../pages/ClientDetails';
 import AddEditClient from '../pages/AddEditClient';
+import { useCart } from '../context/CartContext';
 
 import './MainTabs.css';
 
 const MainTabs: React.FC = () => {
+  const { totalItems } = useCart();
   return (
     <IonTabs>
       <IonRouterOutlet>
@@ -87,7 +89,7 @@ const MainTabs: React.FC = () => {
           <div className="tab-icon-wrapper">
             <div className="icon-badge-container">
               <IonIcon icon={cartOutline} />
-              <div className="badge-dot"></div>
+              {totalItems > 0 && <IonBadge className="cart-badge">{totalItems}</IonBadge>}
             </div>
             <IonLabel>Cart</IonLabel>
           </div>

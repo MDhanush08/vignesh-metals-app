@@ -1,18 +1,35 @@
 .clients-header {
   --background: #fff;
-  --color: #000;
+  --color: var(--ion-color-primary);
 }
 
 .clients-content {
-  --background: #f8f9fa;
+  --background: #f1f5f9;
 }
 
 .search-wrapper {
-  padding: 16px;
+  padding: 24px 20px;
   background: #fff;
-  border-bottom-left-radius: 20px;
-  border-bottom-right-radius: 20px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  border-bottom-left-radius: 30px;
+  border-bottom-right-radius: 30px;
+}
+
+.clients-page-intro {
+  margin-bottom: 20px;
+}
+
+.clients-page-intro h1 {
+  font-size: 26px;
+  font-weight: 800;
+  margin: 0 0 4px 0;
+  letter-spacing: -1px;
+}
+
+.clients-page-intro p {
+  font-size: 14px;
+  color: #64748b;
+  margin: 0;
+  font-weight: 500;
 }
 
 .premium-searchbar {
@@ -26,18 +43,33 @@
 }
 
 .client-card {
-  margin: 0 0 16px 0;
-  border-radius: 16px;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
-  border: none;
+  margin: 0 0 20px 0;
+  border-radius: 20px;
+  border: 1px solid #e2e8f0;
   overflow: hidden;
   position: relative;
   background: #fff;
+  transition: transform 0.2s ease;
 }
 
-.card-top-accent {
-  height: 4px;
-  background: linear-gradient(90deg, #007bff, #00d4ff);
+.client-card:active {
+  transform: scale(0.98);
+}
+
+.card-side-accent {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 6px;
+  background: linear-gradient(to bottom, var(--ion-color-primary), var(--ion-color-tertiary));
+  border-radius: 20px 0 0 20px;
+  box-shadow: 2px 0 10px rgba(0, 51, 102, 0.1);
+}
+
+.client-card ion-card-header,
+.client-card ion-card-content {
+  padding-left: 24px;
 }
 
 .client-header-row {
@@ -48,25 +80,27 @@
 }
 
 .client-code-tag {
-  background: #e7f1ff;
-  color: #007bff;
+  background: rgba(176, 141, 87, 0.1);
+  color: var(--ion-color-tertiary);
   padding: 4px 12px;
   border-radius: 20px;
   font-size: 11px;
-  font-weight: 700;
+  font-weight: 800;
   letter-spacing: 0.5px;
+  border: 1px solid rgba(176, 141, 87, 0.2);
 }
 
 .avatar-icon {
-  font-size: 24px;
-  color: #adb5bd;
+  font-size: 28px;
+  color: var(--ion-color-primary);
+  opacity: 0.8;
 }
 
 .client-name {
-  font-size: 18px;
-  font-weight: 700;
-  color: #212529;
-  letter-spacing: -0.2px;
+  font-size: 20px;
+  font-weight: 800;
+  color: var(--ion-color-primary);
+  letter-spacing: -0.5px;
 }
 
 .client-info-grid {
@@ -102,9 +136,11 @@
 }
 
 .view-details-btn {
-  --color: #007bff;
-  font-weight: 600;
+  --color: var(--ion-color-primary);
+  font-weight: 800;
   font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
 .no-clients-found {
@@ -134,6 +170,8 @@
 }
 
 .custom-fab {
-  --background: #007bff;
-  --background-activated: #0056b3;
+  --background: var(--ion-color-primary);
+  --background-activated: var(--ion-color-primary-shade);
+  --box-shadow: none;
+  box-shadow: none;
 }

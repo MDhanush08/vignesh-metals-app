@@ -1,6 +1,10 @@
 export interface SizeOption {
+  id?: string;
   label: string;
   price: number;
+  HT?: number;
+  BT?: number;
+  WT?: number;
 }
 
 export interface Product {

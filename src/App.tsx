@@ -36,22 +36,26 @@ import '@ionic/react/css/palettes/dark.system.css';
 /* Theme variables */
 import './theme/variables.css';
 
+import { CartProvider } from './context/CartContext';
+
 setupIonicReact();
 
 const App: React.FC = () => (
-  <IonApp>
-    <IonReactRouter>
-      <IonRouterOutlet>
-        <Route exact path="/login">
-          {authService.isAuthenticated() ? <Redirect to="/app/dashboard" /> : <Login />}
-        </Route>
-        <PrivateRoute path="/app" component={MainTabs} />
-        <Route exact path="/">
-          <Redirect to="/app/dashboard" />
-        </Route>
-      </IonRouterOutlet>
-    </IonReactRouter>
-  </IonApp>
+  <CartProvider>
+    <IonApp>
+      <IonReactRouter>
+        <IonRouterOutlet>
+          <Route exact path="/login">
+            {authService.isAuthenticated() ? <Redirect to="/app/dashboard" /> : <Login />}
+          </Route>
+          <PrivateRoute path="/app" component={MainTabs} />
+          <Route exact path="/">
+            <Redirect to="/app/dashboard" />
+          </Route>
+        </IonRouterOutlet>
+      </IonReactRouter>
+    </IonApp>
+  </CartProvider>
 );
 
 export default App;

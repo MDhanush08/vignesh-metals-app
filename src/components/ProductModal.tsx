@@ -6,32 +6,33 @@ import './ProductModal.css';
 
 interface ProductModalProps {
   product: Product | null;
+  initialQuantity?: number;
   isOpen: boolean;
   onClose: () => void;
-  onAddToCart: (product: Product, quantity: number, size: string, price: number) => void;
+  onAddToCart: (product: Product, quantity: number, size: string, price: number, sizeId?: string) => void;
 }
 
-const ProductModal: React.FC<ProductModalProps> = ({ product, isOpen, onClose, onAddToCart }) => {
-  const [quantity, setQuantity] = useState(1);
+const ProductModal: React.FC<ProductModalProps> = ({ product, initialQuantity = 1, isOpen, onClose, onAddToCart }) => {
+  const [quantity, setQuantity] = useState(initialQuantity);
   const [selectedSize, setSelectedSize] = useState<SizeOption | null>(null);
 
   useEffect(() => {
     if (product) {
-      setQuantity(1);
+      setQuantity(initialQuantity);
       if (product.sizeOptions && product.sizeOptions.length > 0) {
         setSelectedSize(product.sizeOptions[0]);
       } else {
         setSelectedSize(null);
       }
     }
-  }, [product, isOpen]);
+  }, [product, isOpen, initialQuantity]);
 
   if (!product) return null;
 
   const currentPrice = selectedSize ? selectedSize.price : product.basePrice;
 
   const handleAddToCart = () => {
-    onAddToCart(product, quantity, selectedSize?.label || 'Standard', currentPrice);
+    onAddToCart(product, quantity, selectedSize?.label || 'Standard', currentPrice, selectedSize?.id);
     onClose();
   };
 
@@ -44,11 +45,15 @@ const ProductModal: React.FC<ProductModalProps> = ({ product, isOpen, onClose, o
       mode="ios"
     >
       <div className="modal-container">
-        {/* Visual Hero Section */}
-        <div className="modal-hero">
+        {/* Top bar with close icon */}
+        <div className="modal-header-bar">
           <IonButton className="modal-close-trigger" fill="clear" onClick={onClose} mode="md">
             <IonIcon icon={closeOutline} slot="icon-only" size="large" />
           </IonButton>
+        </div>
+
+        {/* Visual Hero Section */}
+        <div className="modal-hero">
           <img src={product.image} alt={product.name} className="hero-img" />
         </div>
 
@@ -57,19 +62,14 @@ const ProductModal: React.FC<ProductModalProps> = ({ product, isOpen, onClose, o
           <div className="product-intro">
             <span className="cat-label">{product.category}</span>
             <h2 className="product-title">{product.name}</h2>
-            <div className="main-price-display">
-              <span className="currency">₹</span>
-              <span className="p-amount">{currentPrice.toFixed(0)}</span>
-              <span className="p-unit">/ unit</span>
-            </div>
           </div>
 
           <div className="selection-zone">
             {product.sizeOptions && product.sizeOptions.length > 0 && (
               <div className="variant-configurator">
                 <div className="section-header">
-                  <h3>Choose Variation</h3>
-                  {selectedSize && <span className="selection-pill">{selectedSize.label} Selected</span>}
+                  <h3>Select Available Size</h3>
+                  {selectedSize && <span className="selection-pill">{selectedSize.label} size</span>}
                 </div>
 
                 <div className="variation-selection-grid">
@@ -81,28 +81,49 @@ const ProductModal: React.FC<ProductModalProps> = ({ product, isOpen, onClose, o
                     >
                       <div className="v-card-inner">
                         <span className="v-name">{option.label}</span>
-                        <span className="v-price-val">₹{option.price}</span>
+                      </div>
+                      <div className="select-indicator">
+                        <IonIcon icon={checkmarkCircleOutline} />
                       </div>
                       <IonRippleEffect />
                     </div>
                   ))}
                 </div>
+
+                {selectedSize && (selectedSize.HT || selectedSize.BT || selectedSize.WT) && (
+                  <div className="size-specs-belt">
+                    {selectedSize.HT && (
+                      <div className="mini-spec">
+                        <span className="m-label">Height</span>
+                        <span className="m-val">{selectedSize.HT} in</span>
+                      </div>
+                    )}
+                    {selectedSize.BT && (
+                      <div className="mini-spec">
+                        <span className="m-label">Bottom</span>
+                        <span className="m-val">{selectedSize.BT} in</span>
+                      </div>
+                    )}
+                    {selectedSize.WT && (
+                      <div className="mini-spec">
+                        <span className="m-label">Weight</span>
+                        <span className="m-val">{selectedSize.WT} g</span>
+                      </div>
+                    )}
+                  </div>
+                )}
               </div>
             )}
 
             <div className="description-premium">
-              <h3>About this Product</h3>
+              <h3>Product Description</h3>
               <p>{product.description}</p>
             </div>
 
             <div className="specs-grid-premium">
               <div className="spec-item-premium">
-                <span className="spec-key">Units</span>
-                <span className="spec-val">{product.packSize}</span>
-              </div>
-              <div className="spec-item-premium">
-                <span className="spec-key">Inventory</span>
-                <span className="spec-val">Ready Stock</span>
+                <span className="spec-key">Status</span>
+                <span className="spec-val" style={{ color: 'var(--ion-color-success)' }}>In Stock</span>
               </div>
             </div>
           </div>
@@ -130,7 +151,6 @@ const ProductModal: React.FC<ProductModalProps> = ({ product, isOpen, onClose, o
             <button className="premium-cart-btn" onClick={handleAddToCart}>
               <div className="cart-btn-stack">
                 <span className="main-action">ADD TO CART</span>
-                <span className="total-value">Total ₹{(currentPrice * quantity).toFixed(0)}</span>
               </div>
               <IonRippleEffect />
             </button>

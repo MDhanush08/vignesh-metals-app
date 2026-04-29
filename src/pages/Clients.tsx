@@ -73,7 +73,7 @@ const Clients: React.FC = () => {
         <IonToolbar className="clients-header">
           <IonTitle>Our Clients</IonTitle>
           <IonButtons slot="end">
-            <IonButton routerLink="/app/clients-add">
+            <IonButton fill="clear" routerLink="/app/clients-add">
               <IonIcon icon={addOutline} slot="icon-only" />
             </IonButton>
             <IonButton>
@@ -85,6 +85,12 @@ const Clients: React.FC = () => {
 
       <IonContent className="clients-content">
         <div className="search-wrapper">
+          <div className="clients-page-intro">
+            <IonText color="primary">
+              <h1>Client Registry</h1>
+              <p>Manage your business partners and contacts</p>
+            </IonText>
+          </div>
           <IonSearchbar
             placeholder="Search by Name, Code or City"
             className="premium-searchbar"
@@ -112,7 +118,7 @@ const Clients: React.FC = () => {
                   history.push(`/app/clients/${client._id}`);
                 }}
               >
-                <div className="card-top-accent"></div>
+                <div className="card-side-accent"></div>
                 <IonCardHeader>
                   <div className="client-header-row">
                     <div className="client-code-tag">CLIENT</div>
@@ -134,7 +140,7 @@ const Clients: React.FC = () => {
                   </div>
                   <div className="card-action">
                     <IonButton fill="clear" size="small" className="view-details-btn">
-                      View Details
+                      Explore Profile
                       <IonIcon icon={chevronForwardOutline} slot="end" />
                     </IonButton>
                   </div>

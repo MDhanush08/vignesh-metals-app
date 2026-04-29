@@ -29,6 +29,7 @@ import {
 import React, { useState, useEffect } from 'react';
 import { useHistory } from 'react-router-dom';
 import { getOrders, ApiOrder } from '../services/orderService';
+import { getClients, ApiClient } from '../services/clientService';
 import './OrderHistory.css';
 
 const OrderHistory: React.FC = () => {
@@ -39,6 +40,7 @@ const OrderHistory: React.FC = () => {
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [orders, setOrders] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [clientsMap, setClientsMap] = useState<Record<string, string>>({});
   const [present] = useIonToast();
 
   const statuses = ['All', 'Delivered', 'Processing', 'In Transit', 'Cancelled'];
@@ -51,13 +53,21 @@ const OrderHistory: React.FC = () => {
   const fetchOrders = async () => {
     setLoading(true);
     try {
+      // Fetch clients first to map names
+      const clientsResponse = await getClients(1, 200);
+      const cMap: Record<string, string> = {};
+      clientsResponse.response.data.forEach((c: ApiClient) => {
+        cMap[c._id] = c.name;
+      });
+      setClientsMap(cMap);
+
       const result = await getOrders(1, 50);
       console.log("response .... Orders", result);
 
       const mappedOrders = result.response.data.map((o: ApiOrder) => ({
         id: o.order_number || o._id.substring(0, 8),
         realId: o._id,
-        shopName: o.email.split('@')[0].toUpperCase() || 'CLIENT', // Fallback to email prefix
+        shopName: cMap[o.client_id] || o.email.split('@')[0].toUpperCase() || 'CLIENT', // Fallback to email prefix
         type: o.order_type === 1 ? 'General' : 'Emergency',
         date: new Date(o.approve_at || Date.now()).toLocaleDateString(),
         status: o.status === 1 ? 'Processing' : o.status === 2 ? 'In Transit' : 'Delivered'

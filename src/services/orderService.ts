@@ -1,5 +1,7 @@
 import { apiRequest } from './api';
 
+const API_BASE_URL = import.meta.env.VITE_API_URL;
+
 export interface ApiOrderItem {
   product_id: string;
   name: string;
@@ -50,4 +52,23 @@ export const getOrders = async (page: number = 1, limit: number = 10): Promise<O
 
 export const getOrderById = async (id: string): Promise<SingleOrderResponse> => {
   return apiRequest(`order/${id}`, { method: 'GET' });
+};
+
+export const createOrder = async (data: {
+  client_id: string;
+  items_list: {
+    product_id: string;
+    qty: number;
+    size: string;
+  }[];
+  order_type: number;
+}): Promise<SingleOrderResponse> => {
+  return apiRequest(`order/`, {
+    method: 'POST',
+    body: JSON.stringify(data)
+  });
+};
+
+export const getOrderDownloadUrl = (orderId: string): string => {
+  return `${API_BASE_URL}order/download/${orderId}`;
 };

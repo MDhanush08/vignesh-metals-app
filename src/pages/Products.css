@@ -138,8 +138,8 @@
 .products-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 12px;
-  padding: 12px;
+  gap: 8px;
+  padding: 8px;
 }
 
 /* No Results */
@@ -276,7 +276,7 @@
 @media (max-width: 320px) {
   .products-grid {
     grid-template-columns: 1fr;
-    gap: 12px;
-    padding: 12px;
+    gap: 8px;
+    padding: 8px;
   }
 }
