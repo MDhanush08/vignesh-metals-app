@@ -58,9 +58,26 @@
 
 /* Filter Panel */
 .filter-panel {
-  padding: 0 16px 16px 16px;
+  padding: 0 16px 14px 16px;
   background: #ffffff;
   border-top: 1px solid #f1f5f9;
+}
+
+.filter-actions-row {
+  margin-top: 15px;
+  display: flex;
+  justify-content: center;
+  border-top: 1px dashed #e2e8f0;
+  padding-top: 10px;
+}
+
+.clear-filters-action {
+  --color: #94a3b8;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin: 0;
 }
 
 .filter-group {
@@ -98,150 +115,179 @@
   color: #ffffff;
 }
 
-.orders-list {
-  padding: 16px;
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-
-.review-card {
+.review-compact-card {
   margin: 0;
-  border-radius: 16px;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.03);
+  border-radius: 12px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
   background: #ffffff;
   overflow: hidden;
   position: relative;
-  border: 1px solid rgba(0, 0, 0, 0.01);
+  border: 1px solid #e2e8f0;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
-.status-border {
+.review-compact-card:active {
+  transform: scale(0.98);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.status-strip {
   position: absolute;
   top: 0;
   left: 0;
   bottom: 0;
-  width: 4px;
+  width: 3px;
 }
 
-.status-border.delivered {
+.status-strip.delivered {
   background-color: #10b981;
 }
 
-.status-border.in-transit {
+.status-strip.in-transit {
   background-color: #3b82f6;
 }
 
-.status-border.processing {
+.status-strip.processing {
   background-color: #8b5cf6;
 }
 
-.status-border.cancelled {
+.status-strip.cancelled {
   background-color: #ef4444;
 }
 
-.review-card ion-card-header {
-  padding: 14px 16px 8px 16px;
-}
-
-.card-top-header {
+.card-inner-flex {
+  padding: 12px 14px;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 8px;
 }
 
-.id-badge {
+.order-main-info {
+  flex: 1;
+}
+
+.order-meta-header {
   display: flex;
   align-items: center;
-  gap: 5px;
-  background: #f8fafc;
-  padding: 4px 10px;
-  border-radius: 8px;
+  gap: 8px;
+  margin-bottom: 4px;
 }
 
-.id-badge ion-icon {
-  font-size: 13px;
-  color: #94a3b8;
-}
-
-.id-badge span {
-  font-size: 11px;
-  font-weight: 700;
-  color: #475569;
-}
-
-.badge-emergency {
-  --background: #fee2e2;
-  --color: #dc2626;
-  font-weight: 700;
+.order-number-pill {
   font-size: 10px;
-  border-radius: 6px;
+  font-weight: 800;
+  color: var(--ion-color-primary);
+  background: #f1f5f9;
+  padding: 2px 6px;
+  border-radius: 4px;
+  letter-spacing: 0.5px;
 }
 
-.badge-general {
-  --background: #e0f2fe;
-  --color: #0369a1;
+.order-type-tag {
+  font-size: 9px;
   font-weight: 700;
-  font-size: 10px;
-  border-radius: 6px;
+  text-transform: uppercase;
+  padding: 2px 6px;
+  border-radius: 4px;
 }
 
-.shop-name {
-  font-size: 16px;
+.order-type-tag.general {
+  background: #e0f2fe;
+  color: #0369a1;
+}
+
+.order-type-tag.emergency {
+  background: #fee2e2;
+  color: #dc2626;
+}
+
+.shop-title-compact {
+  font-size: 14px;
   font-weight: 700;
   color: #1e293b;
+  margin: 0 0 6px 0;
+  line-height: 1.2;
 }
 
-.info-grid {
+.order-meta-footer {
   display: flex;
-  justify-content: space-between;
-  margin-top: 8px;
-  padding-bottom: 12px;
-  border-bottom: 1px solid #f8fafc;
+  gap: 12px;
 }
 
-.info-box {
+.meta-item {
   display: flex;
   align-items: center;
-  gap: 6px;
-}
-
-.info-box ion-icon {
-  font-size: 14px;
-  color: #94a3b8;
-}
-
-.info-box ion-text {
-  font-size: 12px;
+  gap: 4px;
   color: #64748b;
+  font-size: 11px;
 }
 
-.status-label {
+.meta-item ion-icon {
+  font-size: 12px;
+}
+
+.order-status-section {
   display: flex;
-  align-items: center;
+  flex-direction: column;
+  align-items: flex-end;
   gap: 6px;
 }
 
-.status-dot {
-  width: 6px;
-  height: 6px;
+.status-indicator-pill {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: 10px;
+  font-weight: 700;
+}
+
+.status-indicator-pill.processing {
+  background: #f5f3ff;
+  color: #7c3aed;
+}
+
+.status-indicator-pill.delivered {
+  background: #ecfdf5;
+  color: #059669;
+}
+
+.status-indicator-pill.in-transit {
+  background: #eff6ff;
+  color: #2563eb;
+}
+
+.status-indicator-pill.cancelled {
+  background: #fef2f2;
+  color: #dc2626;
+}
+
+.status-indicator-pill .status-dot {
+  width: 5px;
+  height: 5px;
   border-radius: 50%;
 }
 
-.status-dot.delivered {
-  background-color: #10b981;
+.status-indicator-pill.processing .status-dot {
+  background: #7c3aed;
 }
 
-.status-dot.in-transit {
-  background-color: #3b82f6;
+.status-indicator-pill.delivered .status-dot {
+  background: #059669;
 }
 
-.status-dot.processing {
-  background-color: #8b5cf6;
+.status-indicator-pill.in-transit .status-dot {
+  background: #2563eb;
 }
 
-.status-dot.cancelled {
-  background-color: #ef4444;
+.status-indicator-pill.cancelled .status-dot {
+  background: #dc2626;
+}
+
+.arrow-hint {
+  color: #cbd5e1;
+  font-size: 16px;
 }
 
 .card-action {

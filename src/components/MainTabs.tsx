@@ -1,5 +1,4 @@
-import React from 'react';
-import { Redirect, Route } from 'react-router-dom';
+import { Redirect, Route, useHistory } from 'react-router-dom';
 import {
   IonIcon,
   IonLabel,
@@ -7,7 +6,8 @@ import {
   IonTabBar,
   IonTabButton,
   IonTabs,
-  IonBadge
+  IonBadge,
+  useIonRouter
 } from '@ionic/react';
 import {
   homeOutline,
@@ -31,9 +31,25 @@ import { useCart } from '../context/CartContext';
 import './MainTabs.css';
 
 const MainTabs: React.FC = () => {
+  const router = useIonRouter();
   const { totalItems } = useCart();
   return (
-    <IonTabs>
+    <IonTabs onIonTabsWillChange={(e) => {
+      const tab = e.detail.tab;
+      const pathMap: Record<string, string> = {
+        'dashboard': '/app/dashboard',
+        'products': '/app/products',
+        'cart': '/app/cart',
+        'orders': '/app/orders',
+        'profile': '/app/profile'
+      };
+
+      const targetPath = pathMap[tab];
+      if (targetPath) {
+        // Force navigate to the root of the tab branch
+        router.push(targetPath, 'root', 'replace');
+      }
+    }}>
       <IonRouterOutlet>
         <Route exact path="/app/dashboard">
           <Dashboard />

@@ -56,6 +56,9 @@ const AddEditClient: React.FC = () => {
     sales_person_id: user?._id || ''
   });
 
+  const [errors, setErrors] = useState<Record<string, string>>({});
+  const [showErrors, setShowErrors] = useState(false);
+
   useEffect(() => {
     if (isEditMode && id) {
       fetchClientForEdit();
@@ -89,11 +92,59 @@ const AddEditClient: React.FC = () => {
       value = String(value);
     }
 
+
+    if (name === 'phone' || name === 'country_code' || name === 'pincode') {
+      value = value.replace(/\D/g, '');
+    }
+
     setFormData(prev => ({ ...prev, [name]: value }));
+    // Clear error for this field when user types
+    if (errors[name]) {
+      setErrors(prev => {
+        const newErrors = { ...prev };
+        delete newErrors[name];
+        return newErrors;
+      });
+    }
+  };
+
+  const validate = () => {
+    const newErrors: Record<string, string> = {};
+    if (!formData.name?.trim()) newErrors.name = 'Required';
+    if (!formData.email?.trim()) newErrors.email = 'Required';
+    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) newErrors.email = 'Invalid email';
+
+    if (!formData.phone?.trim()) {
+      newErrors.phone = 'Required';
+    } else if (!/^\d{10,12}$/.test(formData.phone)) {
+      newErrors.phone = 'Must be 10-12 digits';
+    }
+
+    if (!formData.Address_line_one?.trim()) newErrors.Address_line_one = 'Required';
+    if (!formData.city?.trim()) newErrors.city = 'Required';
+    if (!formData.state?.trim()) newErrors.state = 'Required';
+    if (!formData.country?.trim()) newErrors.country = 'Required';
+    if (!formData.pincode?.trim()) newErrors.pincode = 'Required';
+    else if (!/^\d{6}$/.test(formData.pincode)) newErrors.pincode = 'Invalid PIN (6 digits)';
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setShowErrors(true);
+
+    if (!validate()) {
+      presentToast({
+        message: 'Please fill all required fields correctly.',
+        duration: 3000,
+        color: 'warning',
+        position: 'top'
+      });
+      return;
+    }
+
     await presentLoading({ message: isEditMode ? 'Updating client...' : 'Creating client...' });
 
     try {
@@ -160,21 +211,21 @@ const AddEditClient: React.FC = () => {
 
               <div className="input-field-wrapper">
                 <IonLabel className="field-label">Full Name</IonLabel>
-                <div className="input-inner">
+                <div className={`input-inner ${errors.name ? 'error' : ''}`}>
                   <IonIcon icon={personOutline} />
                   <IonInput
                     name="name"
                     value={formData.name}
                     onIonInput={(e) => handleInputChange(e, 'name')}
                     placeholder="Enter full name"
-                    required
                   />
                 </div>
+                {errors.name && <div className="error-message">{errors.name}</div>}
               </div>
 
               <div className="input-field-wrapper">
                 <IonLabel className="field-label">Email Address</IonLabel>
-                <div className="input-inner">
+                <div className={`input-inner ${errors.email ? 'error' : ''}`}>
                   <IonIcon icon={mailOutline} />
                   <IonInput
                     name="email"
@@ -182,27 +233,26 @@ const AddEditClient: React.FC = () => {
                     value={formData.email}
                     onIonInput={(e) => handleInputChange(e, 'email')}
                     placeholder="example@gmail.com"
-                    required
                   />
                 </div>
+                {errors.email && <div className="error-message">{errors.email}</div>}
               </div>
 
               <div className="input-row">
                 <div className="input-field-wrapper small">
                   <IonLabel className="field-label">Code</IonLabel>
-                  <div className="input-inner no-icon">
+                  <div className={`input-inner no-icon ${errors.country_code ? 'error' : ''}`}>
                     <IonInput
                       name="country_code"
                       value={formData.country_code}
                       onIonInput={(e) => handleInputChange(e, 'country_code')}
                       placeholder="91"
-                      required
                     />
                   </div>
                 </div>
                 <div className="input-field-wrapper flex-1">
                   <IonLabel className="field-label">Phone Number</IonLabel>
-                  <div className="input-inner">
+                  <div className={`input-inner ${errors.phone ? 'error' : ''}`}>
                     <IonIcon icon={callOutline} />
                     <IonInput
                       name="phone"
@@ -210,11 +260,16 @@ const AddEditClient: React.FC = () => {
                       value={formData.phone}
                       onIonInput={(e) => handleInputChange(e, 'phone')}
                       placeholder="9876543210"
-                      required
                     />
                   </div>
                 </div>
               </div>
+              {(errors.country_code || errors.phone) && (
+                <div className="error-message">
+                  {errors.country_code && `Country Code: ${errors.country_code}. `}
+                  {errors.phone && `Phone: ${errors.phone}`}
+                </div>
+              )}
             </div>
 
             <div className="form-section">
@@ -222,16 +277,16 @@ const AddEditClient: React.FC = () => {
 
               <div className="input-field-wrapper">
                 <IonLabel className="field-label">Address Line 1</IonLabel>
-                <div className="input-inner">
+                <div className={`input-inner ${errors.Address_line_one ? 'error' : ''}`}>
                   <IonIcon icon={locationOutline} />
                   <IonInput
                     name="Address_line_one"
                     value={formData.Address_line_one}
                     onIonInput={(e) => handleInputChange(e, 'Address_line_one')}
                     placeholder="Street/Area"
-                    required
                   />
                 </div>
+                {errors.Address_line_one && <div className="error-message">{errors.Address_line_one}</div>}
               </div>
 
               <div className="input-field-wrapper">
@@ -250,56 +305,64 @@ const AddEditClient: React.FC = () => {
               <div className="input-row">
                 <div className="input-field-wrapper flex-1">
                   <IonLabel className="field-label">City</IonLabel>
-                  <div className="input-inner no-icon">
+                  <div className={`input-inner no-icon ${errors.city ? 'error' : ''}`}>
                     <IonInput
                       name="city"
                       value={formData.city}
                       onIonInput={(e) => handleInputChange(e, 'city')}
                       placeholder="Chennai"
-                      required
                     />
                   </div>
                 </div>
                 <div className="input-field-wrapper flex-1">
                   <IonLabel className="field-label">State</IonLabel>
-                  <div className="input-inner no-icon">
+                  <div className={`input-inner no-icon ${errors.state ? 'error' : ''}`}>
                     <IonInput
                       name="state"
                       value={formData.state}
                       onIonInput={(e) => handleInputChange(e, 'state')}
                       placeholder="Tamil Nadu"
-                      required
                     />
                   </div>
                 </div>
               </div>
+              {(errors.city || errors.state) && (
+                <div className="error-message">
+                  {errors.city && `City: ${errors.city}. `}
+                  {errors.state && `State: ${errors.state}`}
+                </div>
+              )}
 
               <div className="input-row">
                 <div className="input-field-wrapper flex-1">
                   <IonLabel className="field-label">Pincode</IonLabel>
-                  <div className="input-inner no-icon">
+                  <div className={`input-inner no-icon ${errors.pincode ? 'error' : ''}`}>
                     <IonInput
                       name="pincode"
                       value={formData.pincode}
                       onIonInput={(e) => handleInputChange(e, 'pincode')}
                       placeholder="600001"
-                      required
                     />
                   </div>
                 </div>
                 <div className="input-field-wrapper flex-1">
                   <IonLabel className="field-label">Country</IonLabel>
-                  <div className="input-inner no-icon">
+                  <div className={`input-inner no-icon ${errors.country ? 'error' : ''}`}>
                     <IonInput
                       name="country"
                       value={formData.country}
                       onIonInput={(e) => handleInputChange(e, 'country')}
                       placeholder="India"
-                      required
                     />
                   </div>
                 </div>
               </div>
+              {(errors.pincode || errors.country) && (
+                <div className="error-message">
+                  {errors.pincode && `Pincode: ${errors.pincode}. `}
+                  {errors.country && `Country: ${errors.country}`}
+                </div>
+              )}
             </div>
 
 

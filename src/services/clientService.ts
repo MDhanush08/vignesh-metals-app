@@ -38,6 +38,10 @@ export const getClients = async (page: number = 1, limit: number = 100): Promise
   return apiRequest(`clients/?limit=${limit}&page=${page}`, { method: 'GET' });
 };
 
+export const getClientList = async (page: number = 1, limit: number = 200): Promise<ClientsResponse> => {
+  return apiRequest(`order/client`, { method: 'GET' });
+};
+
 export const getClientById = async (id: string): Promise<SingleClientResponse> => {
   return apiRequest(`clients/${id}`, { method: 'GET' });
 };

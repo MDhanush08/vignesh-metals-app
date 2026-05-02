@@ -28,6 +28,24 @@
   display: flex;
   justify-content: flex-end;
   margin-bottom: 20px;
+  gap: 12px;
+}
+
+.edit-order-btn {
+  background: #f8fafc;
+  color: var(--ion-color-primary);
+  border: 1.5px solid var(--ion-color-primary);
+  padding: 10px 20px;
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 800;
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+
+.edit-order-btn:active {
+  background: var(--ion-color-primary);
+  color: #fff;
 }
 
 .screenshot-pdf-btn {

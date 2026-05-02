@@ -15,11 +15,11 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 40px 20px;
+  padding: 24px 16px;
   background: linear-gradient(135deg, var(--ion-color-primary), var(--ion-color-primary-shade));
-  border-radius: 30px;
-  box-shadow: 0 15px 35px rgba(0, 51, 102, 0.2);
-  margin-bottom: 24px;
+  border-radius: 20px;
+  box-shadow: 0 10px 25px rgba(0, 51, 102, 0.2);
+  margin-bottom: 16px;
   color: #fff;
 }
 
@@ -39,12 +39,19 @@
 }
 
 .client-main-name {
-  font-size: 24px;
+  font-size: 22px;
   font-weight: 800;
   color: #fff;
-  margin: 0 0 12px 0;
+  margin: 0 0 8px 0;
   text-align: center;
   letter-spacing: -0.5px;
+  width: 100%;
+  max-width: 100%;
+  overflow-wrap: break-word;
+  word-wrap: break-word;
+  word-break: break-word;
+  /* Ensure long names wrap */
+  line-height: 1.2;
 }
 
 .client-status-pill {
@@ -128,6 +135,9 @@
 .item-content {
   display: flex;
   flex-direction: column;
+  min-width: 0;
+  /* Important for flex wrapping */
+  flex: 1;
 }
 
 .item-label {

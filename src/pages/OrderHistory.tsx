@@ -29,7 +29,7 @@ import {
 import React, { useState, useEffect } from 'react';
 import { useHistory } from 'react-router-dom';
 import { getOrders, ApiOrder } from '../services/orderService';
-import { getClients, ApiClient } from '../services/clientService';
+import { getClientList, ApiClient } from '../services/clientService';
 import './OrderHistory.css';
 
 const OrderHistory: React.FC = () => {
@@ -47,6 +47,9 @@ const OrderHistory: React.FC = () => {
   const types = ['All', 'General', 'Emergency'];
 
   useIonViewWillEnter(() => {
+    setSearchText('');
+    setStatusFilter('All');
+    setTypeFilter('All');
     fetchOrders();
   });
 
@@ -54,7 +57,7 @@ const OrderHistory: React.FC = () => {
     setLoading(true);
     try {
       // Fetch clients first to map names
-      const clientsResponse = await getClients(1, 200);
+      const clientsResponse = await getClientList(1, 200);
       const cMap: Record<string, string> = {};
       clientsResponse.response.data.forEach((c: ApiClient) => {
         cMap[c._id] = c.name;
@@ -68,7 +71,7 @@ const OrderHistory: React.FC = () => {
         id: o.order_number || o._id.substring(0, 8),
         realId: o._id,
         shopName: cMap[o.client_id] || o.email.split('@')[0].toUpperCase() || 'CLIENT', // Fallback to email prefix
-        type: o.order_type === 1 ? 'General' : 'Emergency',
+        type: o.order_type === 1 ? 'Emergency' : 'General',
         date: new Date(o.approve_at || Date.now()).toLocaleDateString(),
         status: o.status === 1 ? 'Processing' : o.status === 2 ? 'In Transit' : 'Delivered'
       }));
@@ -155,6 +158,20 @@ const OrderHistory: React.FC = () => {
                   ))}
                 </div>
               </div>
+              <div className="filter-actions-row">
+                <IonButton
+                  fill="clear"
+                  size="small"
+                  className="clear-filters-action"
+                  onClick={() => {
+                    setStatusFilter('All');
+                    setTypeFilter('All');
+                    setSearchText('');
+                  }}
+                >
+                  Clear All Filters
+                </IonButton>
+              </div>
             </div>
           )}
         </div>
@@ -169,7 +186,7 @@ const OrderHistory: React.FC = () => {
             filteredOrders.map((order) => (
               <IonCard
                 key={order.realId}
-                className="review-card ion-activatable"
+                className="review-compact-card ion-activatable"
                 onClick={() => {
                   if (document.activeElement instanceof HTMLElement) {
                     document.activeElement.blur();
@@ -177,51 +194,30 @@ const OrderHistory: React.FC = () => {
                   history.push(`/app/orders/${order.realId}`);
                 }}
               >
-                <div className={`status-border ${order.status.toLowerCase().replace(' ', '-')}`}></div>
-                <IonCardHeader>
-                  <div className="card-top-header">
-                    <div className="id-badge">
-                      <IonIcon icon={idCardOutline} />
-                      <span>{order.id}</span>
+                <div className={`status-strip ${order.status.toLowerCase().replace(' ', '-')}`}></div>
+                <div className="card-inner-flex">
+                  <div className="order-main-info">
+                    <div className="order-meta-header">
+                      <span className="order-number-pill">#{order.id}</span>
+                      <span className={`order-type-tag ${order.type.toLowerCase()}`}>{order.type}</span>
                     </div>
-                    <IonBadge className={order.type.toLowerCase() === 'emergency' ? 'badge-emergency' : 'badge-general'}>
-                      {order.type}
-                    </IonBadge>
-                  </div>
-                  <IonCardTitle className="shop-name">{order.shopName}</IonCardTitle>
-                </IonCardHeader>
-
-                <IonCardContent>
-                  <div className="info-grid">
-                    <div className="info-box">
-                      <IonIcon icon={calendarOutline} />
-                      <IonText>{order.date}</IonText>
-                    </div>
-                    <div className="info-box">
-                      <div className="status-label">
-                        <span className={`status-dot ${order.status.toLowerCase().replace(' ', '-')}`}></span>
-                        <IonText>{order.status}</IonText>
+                    <h3 className="shop-title-compact">{order.shopName}</h3>
+                    <div className="order-meta-footer">
+                      <div className="meta-item">
+                        <IonIcon icon={calendarOutline} />
+                        <span>{order.date}</span>
                       </div>
                     </div>
                   </div>
-                  <div className="card-action">
-                    <IonButton
-                      fill="clear"
-                      size="small"
-                      className="details-link"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        if (document.activeElement instanceof HTMLElement) {
-                          document.activeElement.blur();
-                        }
-                        history.push(`/app/orders/${order.realId}`);
-                      }}
-                    >
-                      View Full Details
-                      <IonIcon icon={chevronForwardOutline} slot="end" />
-                    </IonButton>
+
+                  <div className="order-status-section">
+                    <div className={`status-indicator-pill ${order.status.toLowerCase().replace(' ', '-')}`}>
+                      <span className="status-dot"></span>
+                      {order.status}
+                    </div>
+                    <IonIcon icon={chevronForwardOutline} className="arrow-hint" />
                   </div>
-                </IonCardContent>
+                </div>
               </IonCard>
             ))
           ) : (

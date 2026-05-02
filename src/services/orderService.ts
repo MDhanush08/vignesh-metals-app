@@ -69,6 +69,21 @@ export const createOrder = async (data: {
   });
 };
 
+export const updateOrder = async (id: string, data: {
+  client_id: string;
+  items_list: {
+    product_id: string;
+    qty: number;
+    size: string;
+  }[];
+  order_type: number;
+}): Promise<SingleOrderResponse> => {
+  return apiRequest(`order/${id}`, {
+    method: 'PUT',
+    body: JSON.stringify(data)
+  });
+};
+
 export const getOrderDownloadUrl = (orderId: string): string => {
   return `${API_BASE_URL}order/download/${orderId}`;
 };

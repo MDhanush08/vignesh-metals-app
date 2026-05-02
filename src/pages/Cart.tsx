@@ -16,7 +16,8 @@ import {
   IonGrid,
   IonRow,
   IonCol,
-  IonBadge
+  IonBadge,
+  useIonViewWillEnter
 } from '@ionic/react';
 import {
   notificationsOutline,
@@ -33,8 +34,8 @@ import {
 import React, { useState, useEffect } from 'react';
 import { useHistory } from 'react-router-dom';
 import { PRODUCTS } from '../data/products';
-import { getClients, ApiClient } from '../services/clientService';
-import { createOrder } from '../services/orderService';
+import { getClientList, ApiClient, getClientById } from '../services/clientService';
+import { createOrder, updateOrder } from '../services/orderService';
 import { useCart } from '../context/CartContext';
 import { IonSearchbar, IonModal, IonSpinner, useIonToast, IonRippleEffect } from '@ionic/react';
 import './Cart.css';
@@ -42,18 +43,41 @@ import './Cart.css';
 const Cart: React.FC = () => {
   const history = useHistory();
   const [present] = useIonToast();
-  const { items, updateQuantity, removeItem, clearCart } = useCart();
+  const {
+    items, updateQuantity, removeItem, clearCart,
+    editingOrderId, selectedClientId, orderType: contextOrderType
+  } = useCart();
 
   const [clients, setClients] = useState<ApiClient[]>([]);
   const [filteredClients, setFilteredClients] = useState<ApiClient[]>([]);
   const [loadingClients, setLoadingClients] = useState(false);
   const [isClientModalOpen, setIsClientModalOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
-  const [orderType, setOrderType] = useState<number>(1); // 1: General, 2: Emergency
+  const [orderType, setOrderType] = useState<number>(2); // 1: Emergency, 2: General
   const [selectedClient, setSelectedClient] = useState<ApiClient | null>(null);
   const [isPlacingOrder, setIsPlacingOrder] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
   const [placedOrderId, setPlacedOrderId] = useState('');
+
+  useIonViewWillEnter(() => {
+    if (editingOrderId && selectedClientId) {
+      // Pre-populate for Edit Mode
+      setOrderType(contextOrderType || 2);
+      fetchSelectedClient(selectedClientId);
+    } else {
+      setSelectedClient(null);
+      setOrderType(2); // Reset to General
+    }
+  });
+
+  const fetchSelectedClient = async (clientId: string) => {
+    try {
+      const response = await getClientById(clientId);
+      setSelectedClient(response.response);
+    } catch (error) {
+      console.error('Error fetching client details:', error);
+    }
+  };
 
   useEffect(() => {
     if (isClientModalOpen) {
@@ -76,7 +100,7 @@ const Cart: React.FC = () => {
   const loadClients = async () => {
     setLoadingClients(true);
     try {
-      const response = await getClients(1, 100);
+      const response = await getClientList(1, 100);
       setClients(response.response.data);
     } catch (error) {
       console.error('Error fetching clients:', error);
@@ -116,6 +140,8 @@ const Cart: React.FC = () => {
   };
 
   const submitOrder = async () => {
+    console.log("items ,,,,,", items);
+
     if (!selectedClient) return;
     setIsPlacingOrder(true);
     try {
@@ -131,11 +157,23 @@ const Cart: React.FC = () => {
 
       console.log('Final Order Payload:', JSON.stringify(orderData, null, 2));
 
-      const result = await createOrder(orderData);
+      let result;
+      if (editingOrderId) {
+        result = await updateOrder(editingOrderId, orderData);
+        present({
+          message: 'Order updated successfully!',
+          duration: 2000,
+          color: 'success'
+        });
+      } else {
+        result = await createOrder(orderData);
+      }
+
       const orderId = result.response?.order_number || result.response?._id?.substring(0, 8) || '...';
       setPlacedOrderId(orderId);
 
       clearCart();
+      setSelectedClient(null);
       setShowSuccess(true);
 
       // Auto redirect after animation
@@ -143,9 +181,9 @@ const Cart: React.FC = () => {
         handleViewOrders();
       }, 3000);
     } catch (error) {
-      console.error('Error creating order:', error);
+      console.error('Error processing order:', error);
       present({
-        message: 'Failed to place order. Please try again.',
+        message: `Failed to ${editingOrderId ? 'update' : 'place'} order. Please try again.`,
         duration: 3000,
         color: 'danger'
       });
@@ -167,41 +205,61 @@ const Cart: React.FC = () => {
         </IonToolbar>
       </IonHeader>
 
-      <IonContent className="cart-content">
-        <div className="cart-summary-top">
-          <IonText>
-            <h2>My Order</h2>
-            <p>You have {items.length} items in your cart</p>
-          </IonText>
+      <IonContent className="cart-content-premium">
+        <div className="summary-glass-header">
+          <div className="header-flex">
+            <div className="title-group">
+              <h1>Cart</h1>
+              <span className="item-count">{items.length} items selected</span>
+            </div>
+          </div>
         </div>
 
-        <div className="cart-list-container">
+        <div className="order-type-compact-bar">
+          <div className="segment-pills">
+            <button
+              className={`pill-btn ${orderType === 2 ? 'active-general' : ''}`}
+              onClick={() => setOrderType(2)}
+            >
+              Standard
+            </button>
+            <button
+              className={`pill-btn ${orderType === 1 ? 'active-emergency' : ''}`}
+              onClick={() => setOrderType(1)}
+            >
+              Emergency
+            </button>
+          </div>
+        </div>
+
+        <div className="cart-items-wrapper">
           {items.length > 0 ? (
             items.map(item => (
-              <div key={`${item.id}-${item.size}`} className="cart-item-modern">
-                <div className="item-image-container">
+              <div key={`${item.id}-${item.size}`} className="premium-cart-card">
+                <button className="card-delete-trigger" onClick={() => removeItem(item.id, item.sizeId)}>
+                  <IonIcon icon={trashOutline} />
+                </button>
+
+                <div className="card-image-box">
                   <img src={item.image} alt={item.name} />
                 </div>
-                <div className="item-details-container">
-                  <div className="item-header-row">
-                    <h3 className="item-name">{item.name}</h3>
-                    <button className="remove-icon-btn" onClick={() => removeItem(item.id, item.sizeId)}>
-                      <IonIcon icon={trashOutline} />
-                    </button>
+
+                <div className="card-info-content">
+                  <h3 className="card-product-name">{item.name}</h3>
+
+                  <div className="card-tags-row">
+                    <span className="premium-tag category">{item.category}</span>
+                    {item.size && <span className="premium-tag size">{item.size}</span>}
                   </div>
 
-                  <div className="item-meta-row">
-                    <span className="item-category-tag">{item.category}</span>
-                    {item.size && <span className="item-size-pill">{item.size}</span>}
-                  </div>
-
-                  <div className="item-actions-row">
-                    <div className="quantity-pill">
-                      <button onClick={() => updateQuantity(item.id, -1, item.sizeId)}>
+                  <div className="card-bottom-row">
+                    {/* Quantity Selector moved here for balance */}
+                    <div className="compact-qty-selector">
+                      <button className="qty-ctrl" onClick={() => updateQuantity(item.id, -1, item.sizeId)}>
                         <IonIcon icon={removeOutline} />
                       </button>
-                      <span className="qty-value">{item.quantity}</span>
-                      <button onClick={() => updateQuantity(item.id, 1, item.sizeId)}>
+                      <span className="qty-num">{item.quantity}</span>
+                      <button className="qty-ctrl" onClick={() => updateQuantity(item.id, 1, item.sizeId)}>
                         <IonIcon icon={addOutline} />
                       </button>
                     </div>
@@ -210,33 +268,17 @@ const Cart: React.FC = () => {
               </div>
             ))
           ) : (
-            <div className="empty-cart">
-              <IonIcon icon={cartOutline} className="empty-cart-icon" />
-              <h3>Your cart is empty</h3>
-              <p>Looks like you haven't added anything yet.</p>
-              <IonButton expand="block" fill="outline" routerLink="/app/products">
-                Start Shopping
+            <div className="empty-cart-premium">
+              <div className="empty-state-illust">
+                <IonIcon icon={cartOutline} />
+              </div>
+              <h3>Wait, your cart is empty!</h3>
+              <p>Explore our products and Add your items here.</p>
+              <IonButton mode="ios" className="shop-now-btn" routerLink="/app/products">
+                Shop Our Collection
               </IonButton>
             </div>
           )}
-        </div>
-
-        <div className="order-options">
-          <h3>Order Type</h3>
-          <div className="type-toggle">
-            <div
-              className={`type-option ${orderType === 1 ? 'active general' : ''}`}
-              onClick={() => setOrderType(1)}
-            >
-              General
-            </div>
-            <div
-              className={`type-option ${orderType === 2 ? 'active emergency' : ''}`}
-              onClick={() => setOrderType(2)}
-            >
-              Emergency
-            </div>
-          </div>
         </div>
 
         {selectedClient && (
@@ -275,7 +317,9 @@ const Cart: React.FC = () => {
               {isPlacingOrder ? (
                 <IonSpinner name="crescent" />
               ) : (
-                selectedClient ? 'Confirm & Place Order' : 'Select Client to Place Order'
+                selectedClient
+                  ? (editingOrderId ? 'Confirm & Update Order' : 'Confirm & Place Order')
+                  : (editingOrderId ? 'Select Client to Update Order' : 'Select Client to Place Order')
               )}
               {!isPlacingOrder && <IonIcon icon={chevronForwardOutline} slot="end" />}
             </IonButton>
@@ -362,7 +406,7 @@ const Cart: React.FC = () => {
             </div>
 
             <div className="success-text-content">
-              <h1 className="success-title">Order Placed!</h1>
+              <h1 className="success-title">{editingOrderId ? 'Order Updated!' : 'Order Placed!'}</h1>
               <p className="order-id-label">Order #<span className="id-val">{placedOrderId}</span></p>
               <div className="success-divider"></div>
               <p className="success-message">Your order has been successfully sent to the manufacturing unit.</p>

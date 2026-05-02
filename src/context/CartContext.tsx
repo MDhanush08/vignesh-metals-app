@@ -17,29 +17,51 @@ interface CartContextType {
   updateQuantity: (id: string, delta: number, sizeId?: string) => void;
   clearCart: () => void;
   totalItems: number;
+  // Editing state
+  editingOrderId: string | null;
+  selectedClientId: string | null;
+  orderType: number | null;
+  initializeEdit: (orderId: string, items: CartItem[], clientId: string, type: number) => void;
+  setOrderType: (type: number) => void;
+  setSelectedClientId: (clientId: string) => void;
 }
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
 
 export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [items, setItems] = useState<CartItem[]>([]);
+  const [editingOrderId, setEditingOrderId] = useState<string | null>(null);
+  const [selectedClientId, setSelectedClientId] = useState<string | null>(null);
+  const [orderType, setOrderType] = useState<number | null>(null);
 
   // Load cart from localStorage on mount
   useEffect(() => {
     const savedCart = localStorage.getItem('vignesh_metals_cart');
+    const savedEditState = localStorage.getItem('vignesh_metals_edit_state');
+
     if (savedCart) {
+      try { setItems(JSON.parse(savedCart)); } catch (e) { console.error(e); }
+    }
+
+    if (savedEditState) {
       try {
-        setItems(JSON.parse(savedCart));
-      } catch (e) {
-        console.error('Failed to parse saved cart', e);
-      }
+        const state = JSON.parse(savedEditState);
+        setEditingOrderId(state.orderId);
+        setSelectedClientId(state.clientId);
+        setOrderType(state.orderType);
+      } catch (e) { console.error(e); }
     }
   }, []);
 
-  // Save cart to localStorage whenever it changes
+  // Save cart and edit state to localStorage
   useEffect(() => {
     localStorage.setItem('vignesh_metals_cart', JSON.stringify(items));
-  }, [items]);
+    localStorage.setItem('vignesh_metals_edit_state', JSON.stringify({
+      orderId: editingOrderId,
+      clientId: selectedClientId,
+      orderType: orderType
+    }));
+  }, [items, editingOrderId, selectedClientId, orderType]);
 
   const addItem = (newItem: CartItem) => {
     setItems(prevItems => {
@@ -69,12 +91,26 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
   const clearCart = () => {
     setItems([]);
+    setEditingOrderId(null);
+    setSelectedClientId(null);
+    setOrderType(null);
+  };
+
+  const initializeEdit = (orderId: string, orderItems: CartItem[], clientId: string, type: number) => {
+    setItems(orderItems);
+    setEditingOrderId(orderId);
+    setSelectedClientId(clientId);
+    setOrderType(type);
   };
 
   const totalItems = items.length;
 
   return (
-    <CartContext.Provider value={{ items, addItem, removeItem, updateQuantity, clearCart, totalItems }}>
+    <CartContext.Provider value={{
+      items, addItem, removeItem, updateQuantity, clearCart, totalItems,
+      editingOrderId, selectedClientId, orderType, initializeEdit,
+      setOrderType, setSelectedClientId
+    }}>
       {children}
     </CartContext.Provider>
   );

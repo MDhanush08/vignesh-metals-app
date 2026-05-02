@@ -16,7 +16,8 @@ import {
   IonList,
   IonItem,
   IonLabel,
-  IonSpinner
+  IonSpinner,
+  useIonViewWillEnter
 } from '@ionic/react';
 import {
   notificationsOutline,
@@ -45,6 +46,11 @@ const Products: React.FC = () => {
   const modal = useRef<HTMLIonModalElement>(null);
   const [present] = useIonToast();
   const { addItem } = useCart();
+
+  useIonViewWillEnter(() => {
+    setSearchText('');
+    setSelectedCategories(['All']);
+  });
 
   useEffect(() => {
     loadData();
@@ -292,10 +298,15 @@ const Products: React.FC = () => {
               <div className="handle"></div>
               <div className="title-row">
                 <h2>Filter Categories</h2>
-                <IonButton fill="clear" onClick={() => setIsFilterOpen(false)}>
-                  <IonIcon icon={checkmarkCircle} slot="start" />
-                  Done
-                </IonButton>
+                <div className="header-actions">
+                  <IonButton fill="clear" color="medium" onClick={() => setSelectedCategories(['All'])}>
+                    Clear All
+                  </IonButton>
+                  <IonButton fill="clear" onClick={() => setIsFilterOpen(false)}>
+                    <IonIcon icon={checkmarkCircle} slot="start" />
+                    Done
+                  </IonButton>
+                </div>
               </div>
             </div>
 

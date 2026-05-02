@@ -202,6 +202,20 @@
   align-items: center;
 }
 
+.header-actions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.header-actions ion-button {
+  --padding-start: 8px;
+  --padding-end: 8px;
+  font-weight: 700;
+  font-size: 13px;
+  margin: 0;
+}
+
 .title-row h2 {
   font-size: 18px;
   font-weight: 800;

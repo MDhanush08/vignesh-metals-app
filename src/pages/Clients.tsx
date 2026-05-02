@@ -107,10 +107,10 @@ const Clients: React.FC = () => {
               <p>Loading clients...</p>
             </div>
           ) : filteredClients.length > 0 ? (
-            filteredClients.map((client) => (
-              <IonCard
+            filteredClients.map((client, index) => (
+              <div
                 key={client._id}
-                className="client-card ion-activatable"
+                className="colorful-card"
                 onClick={() => {
                   if (document.activeElement instanceof HTMLElement) {
                     document.activeElement.blur();
@@ -118,34 +118,32 @@ const Clients: React.FC = () => {
                   history.push(`/app/clients/${client._id}`);
                 }}
               >
-                <div className="card-side-accent"></div>
-                <IonCardHeader>
-                  <div className="client-header-row">
-                    <div className="client-code-tag">CLIENT</div>
-                    <IonIcon icon={personOutline} className="avatar-icon" />
-                  </div>
-                  <IonCardTitle className="client-name">{client.name}</IonCardTitle>
-                </IonCardHeader>
+                <div className={`icon-box color-${(index % 5) + 1}`}>
+                  <IonIcon icon={personOutline} />
+                </div>
 
-                <IonCardContent>
-                  <div className="client-info-grid">
-                    <div className="info-row">
+                <div className="card-content-main">
+                  <div className="card-header-main">
+                    <span className="client-id-badge">{client.client_code || 'CLI'}</span>
+                    <h3 className="client-name-text">{client.name}</h3>
+                  </div>
+
+                  <div className="card-footer-metrics">
+                    <div className="metric-item">
                       <IonIcon icon={callOutline} />
-                      <span>{client.phone}</span>
+                      <span className="metric-value">{client.phone}</span>
                     </div>
-                    <div className="info-row">
+                    <div className="metric-item">
                       <IonIcon icon={locationOutline} />
-                      <span className="truncate">{client.city}, {client.state}</span>
+                      <span className="metric-value truncate">{client.city}</span>
                     </div>
                   </div>
-                  <div className="card-action">
-                    <IonButton fill="clear" size="small" className="view-details-btn">
-                      Explore Profile
-                      <IonIcon icon={chevronForwardOutline} slot="end" />
-                    </IonButton>
-                  </div>
-                </IonCardContent>
-              </IonCard>
+                </div>
+
+                <div className="arrow-action">
+                  <IonIcon icon={chevronForwardOutline} />
+                </div>
+              </div>
             ))
           ) : (
             <div className="no-clients-found">

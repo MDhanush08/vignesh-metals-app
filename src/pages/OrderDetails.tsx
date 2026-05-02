@@ -25,12 +25,15 @@ import {
 import React, { useState } from 'react';
 import { useParams, useHistory } from 'react-router-dom';
 import { getOrderById, getOrderDownloadUrl } from '../services/orderService';
+import { useCart } from '../context/CartContext';
 import './OrderDetails.css';
 
 const OrderDetails: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const history = useHistory();
+  const { initializeEdit } = useCart();
   const [order, setOrder] = useState<any>(null);
+  const [rawOrder, setRawOrder] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [present] = useIonToast();
 
@@ -45,12 +48,13 @@ const OrderDetails: React.FC = () => {
       const result = await getOrderById(id);
       console.log("response .... Order Details", result);
       const data = result.response;
+      setRawOrder(data);
 
       // Map API response to UI structure
       const mappedOrder = {
         id: data.order_number || data._id.substring(0, 8),
         shopName: data.email.split('@')[0].toUpperCase() || 'CLIENT',
-        type: data.order_type === 1 ? 'General' : 'Emergency',
+        type: data.order_type === 1 ? 'Emergency' : 'General',
         date: new Date(data.created_at || Date.now()).toLocaleDateString(),
         status: data.status === 1 ? 'Processing' : data.status === 2 ? 'In Transit' : 'Delivered',
         address: data.address,
@@ -91,6 +95,30 @@ const OrderDetails: React.FC = () => {
     window.open(downloadUrl, '_blank');
   };
 
+  const handleEditOrder = () => {
+    if (!rawOrder || !id) return;
+
+    const cartItems = (rawOrder.items_list || []).map((item: any) => ({
+      id: item.product_id,
+      name: item.name || 'Product',
+      category: 'General',
+      quantity: item.quantity,
+      image: 'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?auto=format&fit=crop&q=80&w=200',
+      size: item.size || 'Small',
+      sizeId: item.size_id || item.size // Fallback
+    }));
+
+    initializeEdit(id, cartItems, rawOrder.client_id, rawOrder.order_type);
+
+    present({
+      message: 'Order loaded into cart for editing.',
+      duration: 2000,
+      color: 'success'
+    });
+
+    history.push('/app/cart');
+  };
+
   return (
     <IonPage>
       <IonHeader className="ion-no-border">
@@ -124,7 +152,10 @@ const OrderDetails: React.FC = () => {
           <div className="modal-body-padding">
             <div className="top-action-bar">
               <button className="screenshot-pdf-btn" onClick={handleDownloadPDF}>
-                Download as PDF
+                Download PDF
+              </button>
+              <button className="edit-order-btn" onClick={handleEditOrder}>
+                Refine Order
               </button>
             </div>
 
