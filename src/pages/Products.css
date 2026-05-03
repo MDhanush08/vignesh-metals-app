@@ -100,8 +100,8 @@
 .categories-scroll {
   display: flex;
   overflow-x: auto;
-  padding: 5px 16px 20px 16px;
-  gap: 10px;
+  padding: 12px 16px 20px 16px;
+  gap: 15px;
   background: #ffffff;
   scrollbar-width: none;
   /* Firefox */
@@ -142,31 +142,69 @@
   padding: 8px;
 }
 
-/* No Results */
-.no-results-container {
-  padding: 60px 40px;
+/* No Results Premium */
+.no-results-premium {
+  padding: 100px 40px;
+  text-align: center;
   display: flex;
   flex-direction: column;
   align-items: center;
-  text-align: center;
+  justify-content: center;
 }
 
-.no-results-container img {
-  width: 120px;
-  opacity: 0.2;
-  margin-bottom: 20px;
-}
-
-.no-results-container h3 {
-  font-size: 20px;
-  font-weight: 700;
-  color: #1e293b;
-  margin-bottom: 8px;
-}
-
-.no-results-container p {
-  color: #64748b;
+.empty-search-icon {
+  font-size: 72px;
+  color: #e2e8f0;
   margin-bottom: 24px;
+  background: #ffffff;
+  width: 120px;
+  height: 120px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 40px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.03);
+  animation: floatEmpty 3s ease-in-out infinite;
+}
+
+@keyframes floatEmpty {
+
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+.no-results-premium h3 {
+  font-size: 22px;
+  font-weight: 800;
+  color: #1e293b;
+  margin-bottom: 12px;
+}
+
+.no-results-premium p {
+  font-size: 15px;
+  color: #64748b;
+  margin-bottom: 32px;
+  line-height: 1.5;
+  max-width: 280px;
+}
+
+.clear-all-action {
+  --background: #ffffff;
+  --color: var(--ion-color-primary);
+  --border-radius: 14px;
+  --border-width: 1.5px;
+  --border-color: var(--ion-color-primary);
+  --border-style: solid;
+  font-weight: 700;
+  text-transform: none;
+  font-size: 15px;
+  height: 48px;
 }
 
 /* Bottom Sheet Filter Styling */
@@ -183,7 +221,7 @@
 }
 
 .sheet-header {
-  padding: 12px 16px 8px 16px;
+  padding: 12px 20px 0 20px;
   background: #ffffff;
   border-bottom: 1px solid #f1f5f9;
 }
@@ -193,70 +231,68 @@
   height: 4px;
   background: #e2e8f0;
   border-radius: 2px;
-  margin: 0 auto 12px auto;
+  margin: 0 auto 15px auto;
 }
 
 .title-row {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  margin-bottom: 10px;
+}
+
+.title-row h2 {
+  font-size: 20px;
+  font-weight: 800;
+  color: #1e3a5f;
+  margin: 0;
 }
 
 .header-actions {
   display: flex;
-  gap: 8px;
-  align-items: center;
+  gap: 0;
 }
 
 .header-actions ion-button {
-  --padding-start: 8px;
-  --padding-end: 8px;
   font-weight: 700;
   font-size: 13px;
-  margin: 0;
+  text-transform: none;
+  --color: #64748b;
 }
 
-.title-row h2 {
-  font-size: 18px;
-  font-weight: 800;
-  color: #1e293b;
-  margin: 0;
-}
-
-.title-row ion-button {
+.header-actions ion-button:last-child {
   --color: var(--ion-color-primary);
-  font-weight: 700;
-  font-size: 14px;
 }
 
 .category-select-list {
   background: transparent;
-  padding: 16px 4px;
+  padding: 16px 12px;
 }
 
 .filter-item {
   --background: #f8fafc;
-  --border-radius: 12px;
-  margin-bottom: 10px;
+  --border-radius: 14px;
+  margin-bottom: 12px;
   --padding-start: 16px;
-  --min-height: 54px;
+  --min-height: 56px;
   transition: all 0.2s ease;
-  border: 1px solid #f1f5f9;
+  border: 1.5px solid #f1f5f9;
+  --inner-padding-end: 16px;
+  --box-shadow: none;
 }
 
 .filter-item.selected {
-  --background: var(--app-tab-active-bg);
+  --background: #eff6ff;
   --color: var(--ion-color-primary);
-  border: 1px solid var(--ion-color-primary);
+  border-color: var(--ion-color-primary);
+  border-radius: 20px;
 }
 
-.filter-item-label,
 .filter-label-text {
   font-size: 16px !important;
-  font-weight: 600 !important;
+  font-weight: 700 !important;
   color: #1e293b !important;
-  opacity: 1 !important;
-  display: block;
+  text-transform: capitalize;
 }
 
 .filter-item.selected .filter-label-text {
@@ -265,7 +301,7 @@
 
 .filter-item ion-checkbox {
   --size: 20px;
-  --border-radius: 6px;
+  --border-radius: 8px;
   --checkbox-background-checked: var(--ion-color-primary);
   --border-color-checked: var(--ion-color-primary);
 }

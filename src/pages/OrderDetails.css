@@ -103,6 +103,18 @@
   background: #facc15;
 }
 
+.hero-status-pill.pending .dot {
+  background: #8b5cf6;
+}
+
+.hero-status-pill.approved .dot {
+  background: #3b82f6;
+}
+
+.hero-status-pill.delivered .dot {
+  background: #10b981;
+}
+
 .hero-info-grid {
   display: flex;
   flex-direction: column;

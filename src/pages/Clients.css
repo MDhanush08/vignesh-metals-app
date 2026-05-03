@@ -1,6 +1,19 @@
 .clients-header {
-  --background: #fff;
-  --color: var(--ion-color-primary);
+  --background: var(--ion-color-primary);
+  --color: #ffffff;
+  --border-width: 0;
+  --padding-top: 10px;
+  --padding-bottom: 5px;
+}
+
+.clients-header ion-title {
+  font-weight: 700;
+  font-size: 20px;
+  letter-spacing: -0.5px;
+}
+
+.clients-header ion-button {
+  --color: #ffffff;
 }
 
 .clients-content {
@@ -12,24 +25,6 @@
   background: #fff;
   border-bottom-left-radius: 20px;
   border-bottom-right-radius: 20px;
-}
-
-.clients-page-intro {
-  margin-bottom: 12px;
-}
-
-.clients-page-intro h1 {
-  font-size: 20px;
-  font-weight: 800;
-  margin: 0 0 2px 0;
-  letter-spacing: -0.5px;
-}
-
-.clients-page-intro p {
-  font-size: 13px;
-  color: #64748b;
-  margin: 0;
-  font-weight: 500;
 }
 
 .premium-searchbar {

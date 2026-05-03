@@ -25,6 +25,7 @@ import {
 import React, { useState } from 'react';
 import { useParams, useHistory } from 'react-router-dom';
 import { getOrderById, getOrderDownloadUrl } from '../services/orderService';
+import { getClientById } from '../services/clientService';
 import { useCart } from '../context/CartContext';
 import './OrderDetails.css';
 
@@ -46,17 +47,29 @@ const OrderDetails: React.FC = () => {
     setLoading(true);
     try {
       const result = await getOrderById(id);
-      console.log("response .... Order Details", result);
       const data = result.response;
       setRawOrder(data);
+
+      // Fetch Client details for Name
+      const clientId = typeof data.client_id === 'object' ? (data.client_id as any)._id : data.client_id;
+      let clientName = 'CLIENT';
+
+      try {
+        const clientRes = await getClientById(clientId);
+        if (clientRes && clientRes.response) {
+          clientName = clientRes.response.name;
+        }
+      } catch (err) {
+        console.error("Error fetching client details in OrderDetails:", err);
+      }
 
       // Map API response to UI structure
       const mappedOrder = {
         id: data.order_number || data._id.substring(0, 8),
-        shopName: data.email.split('@')[0].toUpperCase() || 'CLIENT',
+        clientName: clientName,
         type: data.order_type === 1 ? 'Emergency' : 'General',
         date: new Date(data.created_at || Date.now()).toLocaleDateString(),
-        status: data.status === 1 ? 'Processing' : data.status === 2 ? 'In Transit' : 'Delivered',
+        status: data.status === 1 ? 'Pending' : data.status === 2 ? 'Approved' : 'Delivered',
         address: data.address,
         phone: `+${data.country_code} ${data.phone}`,
         expectedDate: data.approve_at ? new Date(data.approve_at).toLocaleDateString() : 'TBD',
@@ -80,19 +93,57 @@ const OrderDetails: React.FC = () => {
     }
   };
 
-  const handleDownloadPDF = () => {
+  const handleDownloadOrder = async () => {
     if (!id) return;
     const downloadUrl = getOrderDownloadUrl(id);
 
     present({
-      message: 'Opening order PDF...',
+      message: 'Preparing order data...',
       duration: 2000,
-      color: 'success',
+      color: 'primary',
       position: 'bottom'
     });
 
-    // Open in new tab to trigger download
-    window.open(downloadUrl, '_blank');
+    try {
+      // Use fetch instead of direct link to include Authorization headers
+      const token = localStorage.getItem('token');
+      const response = await fetch(downloadUrl, {
+        method: 'GET',
+        headers: {
+          ...(token ? { 'Authorization': `Bearer ${token}` } : {})
+        }
+      });
+
+      if (!response.ok) {
+        throw new Error('Server returned an error');
+      }
+
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', `order-${order?.id || id}.csv`);
+      document.body.appendChild(link);
+      link.click();
+
+      // Cleanup
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+
+      present({
+        message: 'Download started successfully!',
+        duration: 2000,
+        color: 'success'
+      });
+    } catch (error) {
+      console.error('Download error:', error);
+      present({
+        message: 'Download failed. The server might be busy or unauthorized.',
+        duration: 3000,
+        color: 'danger'
+      });
+    }
   };
 
   const handleEditOrder = () => {
@@ -108,7 +159,8 @@ const OrderDetails: React.FC = () => {
       sizeId: item.size_id || item.size // Fallback
     }));
 
-    initializeEdit(id, cartItems, rawOrder.client_id, rawOrder.order_type);
+    const clientId = typeof rawOrder.client_id === 'object' ? rawOrder.client_id._id : rawOrder.client_id;
+    initializeEdit(id, cartItems, clientId, rawOrder.order_type);
 
     present({
       message: 'Order loaded into cart for editing.',
@@ -151,8 +203,8 @@ const OrderDetails: React.FC = () => {
         ) : order ? (
           <div className="modal-body-padding">
             <div className="top-action-bar">
-              <button className="screenshot-pdf-btn" onClick={handleDownloadPDF}>
-                Download PDF
+              <button className="screenshot-pdf-btn" onClick={handleDownloadOrder}>
+                Download Order
               </button>
               <button className="edit-order-btn" onClick={handleEditOrder}>
                 Refine Order
@@ -162,7 +214,7 @@ const OrderDetails: React.FC = () => {
             <div className="status-hero-card">
               <div className="hero-head">
                 <h3>Order Status</h3>
-                <div className="hero-status-pill">
+                <div className={`hero-status-pill ${order.status.toLowerCase()}`}>
                   <span className="dot"></span>
                   {order.status}
                 </div>
@@ -189,10 +241,10 @@ const OrderDetails: React.FC = () => {
             <div className="details-white-card">
               <div className="card-title-row">
                 <IonIcon icon={businessOutline} className="title-icon" />
-                <h4>Vendor Details</h4>
+                <h4>Client Details</h4>
               </div>
               <div className="vendor-body">
-                <h5 className="vendor-name-large">{order.shopName}</h5>
+                <h5 className="vendor-name-large">{order.clientName}</h5>
                 <div className="contact-row">
                   <IonIcon icon={locationOutline} />
                   <p>{order.address}</p>

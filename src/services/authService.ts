@@ -46,5 +46,16 @@ export const authService = {
       console.error('Error parsing user data from localStorage:', error);
       return null;
     }
+  },
+
+  changePassword: async (data: {
+    old_password: string;
+    new_password: string;
+    confirm_password: string;
+  }) => {
+    return apiRequest('salesperson/Change-password', {
+      method: 'PUT',
+      body: JSON.stringify(data)
+    });
   }
 };

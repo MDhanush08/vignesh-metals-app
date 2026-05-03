@@ -24,7 +24,8 @@ import {
   optionsOutline,
   closeOutline,
   downloadOutline,
-  checkmarkCircle
+  checkmarkCircle,
+  searchOutline
 } from 'ionicons/icons';
 import ProductCard from '../components/ProductCard';
 import ProductModal from '../components/ProductModal';
@@ -63,7 +64,6 @@ const Products: React.FC = () => {
       let categoryMap: Record<string, string> = {};
       try {
         const catResponse = await getCategories();
-        console.log("response .... Categories", catResponse);
 
         const apiCats = catResponse.response.data;
         apiCats.forEach(cat => {
@@ -77,7 +77,6 @@ const Products: React.FC = () => {
 
       // Fetch products
       const response = await getProducts(1, 100);
-      console.log("response .... Produsts", response);
 
       const apiProducts = response.response.data;
 
@@ -197,25 +196,6 @@ const Products: React.FC = () => {
       </IonHeader>
 
       <IonContent className="products-page-content">
-        <div className="catalog-subheader">
-          <div className="header-flex">
-            <IonText>
-              <h2>Our Products</h2>
-              <p>
-                {loading ? 'Loading...' : (
-                  selectedCategories.includes('All')
-                    ? 'Showing all items'
-                    : `Filtering ${selectedCategories.length} categories`
-                )}
-              </p>
-            </IonText>
-            <IonButton fill="outline" className="catalog-pdf-btn" onClick={handleDownloadCatalog}>
-              <IonIcon icon={downloadOutline} slot="start" />
-              Catalog
-            </IonButton>
-          </div>
-        </div>
-
         <div className="search-filter-wrapper">
           <IonSearchbar
             value={searchText}
@@ -267,12 +247,14 @@ const Products: React.FC = () => {
         </div>
 
         {!loading && filteredProducts.length === 0 && (
-          <div className="no-results-container">
-            <IonIcon icon={closeOutline} style={{ fontSize: '64px', color: '#ccc' }} />
-            <h3>No Products Found</h3>
-            <p>Try adjusting your search or filters</p>
-            <IonButton fill="outline" color="primary" onClick={() => { setSearchText(''); setSelectedCategories(['All']); }}>
-              Clear All Filters
+          <div className="no-results-premium">
+            <div className="empty-search-icon">
+              <IonIcon icon={searchOutline} />
+            </div>
+            <h3>No results found</h3>
+            <p>We couldn't find anything matching your search. Try different keywords or clear the filters.</p>
+            <IonButton mode="ios" className="clear-all-action" onClick={() => { setSearchText(''); setSelectedCategories(['All']); }}>
+              Clear Search & Filters
             </IonButton>
           </div>
         )}
@@ -331,7 +313,7 @@ const Products: React.FC = () => {
 
             <div className="sheet-footer">
               <IonButton expand="block" className="apply-btn" onClick={() => setIsFilterOpen(false)}>
-                Apply Filters ({filteredProducts.length} Products)
+                Apply Selection
               </IonButton>
             </div>
           </div>

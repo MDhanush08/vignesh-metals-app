@@ -1,6 +1,19 @@
 .client-details-header {
-  --background: #fff;
-  --color: var(--ion-color-primary);
+  --background: var(--ion-color-primary);
+  --color: #ffffff;
+  --border-width: 0;
+  --padding-top: 10px;
+  --padding-bottom: 5px;
+}
+
+.client-details-header ion-title {
+  font-weight: 700;
+  font-size: 20px;
+  letter-spacing: -0.5px;
+}
+
+.client-details-header ion-button {
+  --color: #ffffff;
 }
 
 .client-details-content {

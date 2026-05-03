@@ -23,7 +23,8 @@ interface CartContextType {
   orderType: number | null;
   initializeEdit: (orderId: string, items: CartItem[], clientId: string, type: number) => void;
   setOrderType: (type: number) => void;
-  setSelectedClientId: (clientId: string) => void;
+  setSelectedClientId: (clientId: string | null) => void;
+  setEditingOrderId: (orderId: string | null) => void;
 }
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
@@ -109,7 +110,7 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     <CartContext.Provider value={{
       items, addItem, removeItem, updateQuantity, clearCart, totalItems,
       editingOrderId, selectedClientId, orderType, initializeEdit,
-      setOrderType, setSelectedClientId
+      setOrderType, setSelectedClientId, setEditingOrderId
     }}>
       {children}
     </CartContext.Provider>

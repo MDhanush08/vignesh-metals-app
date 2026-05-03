@@ -17,7 +17,8 @@ import {
   IonRow,
   IonCol,
   IonBadge,
-  useIonViewWillEnter
+  useIonViewWillEnter,
+  useIonViewWillLeave
 } from '@ionic/react';
 import {
   notificationsOutline,
@@ -29,7 +30,8 @@ import {
   searchOutline,
   personOutline,
   closeOutline,
-  checkmarkCircleOutline
+  checkmarkCircleOutline,
+  cubeOutline
 } from 'ionicons/icons';
 import React, { useState, useEffect } from 'react';
 import { useHistory } from 'react-router-dom';
@@ -45,7 +47,8 @@ const Cart: React.FC = () => {
   const [present] = useIonToast();
   const {
     items, updateQuantity, removeItem, clearCart,
-    editingOrderId, selectedClientId, orderType: contextOrderType
+    editingOrderId, selectedClientId, orderType: contextOrderType,
+    setSelectedClientId, setEditingOrderId
   } = useCart();
 
   const [clients, setClients] = useState<ApiClient[]>([]);
@@ -68,6 +71,14 @@ const Cart: React.FC = () => {
       setSelectedClient(null);
       setOrderType(2); // Reset to General
     }
+  });
+
+  useIonViewWillLeave(() => {
+    // Reset client details when leaving the page as per user request
+    setSelectedClient(null);
+    setSelectedClientId(null);
+    // Also clear edit mode if we leave the page to ensure fresh start next time
+    setEditingOrderId(null);
   });
 
   const fetchSelectedClient = async (clientId: string) => {
@@ -125,6 +136,7 @@ const Cart: React.FC = () => {
 
   const handleSelectClient = (client: ApiClient) => {
     setSelectedClient(client);
+    setSelectedClientId(client._id); // Update context too
     setIsClientModalOpen(false);
     present({
       message: `Selected client: ${client.name}`,
@@ -140,7 +152,6 @@ const Cart: React.FC = () => {
   };
 
   const submitOrder = async () => {
-    console.log("items ,,,,,", items);
 
     if (!selectedClient) return;
     setIsPlacingOrder(true);
@@ -155,7 +166,6 @@ const Cart: React.FC = () => {
         order_type: orderType
       };
 
-      console.log('Final Order Payload:', JSON.stringify(orderData, null, 2));
 
       let result;
       if (editingOrderId) {
@@ -206,189 +216,188 @@ const Cart: React.FC = () => {
       </IonHeader>
 
       <IonContent className="cart-content-premium">
-        <div className="summary-glass-header">
-          <div className="header-flex">
-            <div className="title-group">
-              <h1>Cart</h1>
-              <span className="item-count">{items.length} items selected</span>
-            </div>
-          </div>
-        </div>
-
-        <div className="order-type-compact-bar">
-          <div className="segment-pills">
-            <button
-              className={`pill-btn ${orderType === 2 ? 'active-general' : ''}`}
-              onClick={() => setOrderType(2)}
-            >
-              Standard
-            </button>
-            <button
-              className={`pill-btn ${orderType === 1 ? 'active-emergency' : ''}`}
-              onClick={() => setOrderType(1)}
-            >
-              Emergency
-            </button>
-          </div>
-        </div>
-
-        <div className="cart-items-wrapper">
-          {items.length > 0 ? (
-            items.map(item => (
-              <div key={`${item.id}-${item.size}`} className="premium-cart-card">
-                <button className="card-delete-trigger" onClick={() => removeItem(item.id, item.sizeId)}>
-                  <IonIcon icon={trashOutline} />
-                </button>
-
-                <div className="card-image-box">
-                  <img src={item.image} alt={item.name} />
+        {items.length > 0 ? (
+          <>
+            <div className="selected-client-section">
+              <h3 className="section-title">Delivery To</h3>
+              {selectedClient ? (
+                <div className="client-summary-card" onClick={() => setIsClientModalOpen(true)}>
+                  <div className="client-avatar">
+                    <IonIcon icon={personOutline} />
+                  </div>
+                  <div className="client-data">
+                    <h4>{selectedClient.name}</h4>
+                    <p>{selectedClient.city}, {selectedClient.state} - {selectedClient.pincode || '620001'}</p>
+                    <p className="phone-val">{selectedClient.phone}</p>
+                  </div>
+                  <div className="client-actions">
+                    <button className="change-btn">
+                      Change <IonIcon icon={chevronForwardOutline} />
+                    </button>
+                  </div>
                 </div>
+              ) : (
+                <div className="client-summary-card placeholder-card" onClick={() => setIsClientModalOpen(true)}>
+                  <div className="client-avatar empty">
+                    <IonIcon icon={personOutline} />
+                  </div>
+                  <div className="client-data">
+                    <h4>No Client Selected</h4>
+                    <p>Tap here to select client</p>
+                  </div>
+                  <div className="client-actions">
+                    <button className="change-btn">
+                      Select <IonIcon icon={chevronForwardOutline} />
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
 
-                <div className="card-info-content">
-                  <h3 className="card-product-name">{item.name}</h3>
-
-                  <div className="card-tags-row">
-                    <span className="premium-tag category">{item.category}</span>
-                    {item.size && <span className="premium-tag size">{item.size}</span>}
+            <div className="cart-items-wrapper">
+              {items.map(item => (
+                <div key={`${item.id}-${item.size}`} className="premium-cart-card">
+                  <div className="card-image-box">
+                    <img src={item.image} alt={item.name} />
                   </div>
 
-                  <div className="card-bottom-row">
-                    {/* Quantity Selector moved here for balance */}
-                    <div className="compact-qty-selector">
-                      <button className="qty-ctrl" onClick={() => updateQuantity(item.id, -1, item.sizeId)}>
-                        <IonIcon icon={removeOutline} />
+                  <div className="card-info-content">
+                    <div className="top-row">
+                      <h3 className="card-product-name">{item.name}</h3>
+                      <button className="card-delete-trigger" onClick={() => removeItem(item.id, item.sizeId)}>
+                        <IonIcon icon={trashOutline} />
                       </button>
-                      <span className="qty-num">{item.quantity}</span>
-                      <button className="qty-ctrl" onClick={() => updateQuantity(item.id, 1, item.sizeId)}>
-                        <IonIcon icon={addOutline} />
-                      </button>
+                    </div>
+
+                    <div className="card-tags-row">
+                      <span className="premium-tag category">{item.category}</span>
+                      {item.size && <span className="premium-tag size">{item.size}</span>}
+                    </div>
+
+                    <div className="card-bottom-row">
+                      <div className="price-placeholder"></div>
+
+                      <div className="compact-qty-selector">
+                        <button className="qty-ctrl" onClick={() => updateQuantity(item.id, -1, item.sizeId)}>
+                          <IonIcon icon={removeOutline} />
+                        </button>
+                        <span className="qty-num">{item.quantity}</span>
+                        <button className="qty-ctrl" onClick={() => updateQuantity(item.id, 1, item.sizeId)}>
+                          <IonIcon icon={addOutline} />
+                        </button>
+                      </div>
                     </div>
                   </div>
                 </div>
-              </div>
-            ))
-          ) : (
-            <div className="empty-cart-premium">
-              <div className="empty-state-illust">
-                <IonIcon icon={cartOutline} />
-              </div>
-              <h3>Wait, your cart is empty!</h3>
-              <p>Explore our products and Add your items here.</p>
-              <IonButton mode="ios" className="shop-now-btn" routerLink="/app/products">
-                Shop Our Collection
-              </IonButton>
+              ))}
             </div>
-          )}
-        </div>
-
-        {selectedClient && (
-          <div className="selected-client-section">
-            <div className="section-header">
-              <h3>Client Details</h3>
-              <IonButton fill="clear" size="small" onClick={() => setIsClientModalOpen(true)}>
-                Change
-              </IonButton>
+          </>
+        ) : (
+          <div className="empty-cart-premium">
+            <div className="empty-state-illust">
+              <IonIcon icon={cartOutline} />
             </div>
-            <div className="client-summary-card">
-              <div className="client-avatar">
-                <IonIcon icon={personOutline} />
-              </div>
-              <div className="client-data">
-                <h4>{selectedClient.name}</h4>
-                <p>{selectedClient.city}, {selectedClient.state}</p>
-              </div>
-              <div className="client-check">
-                <IonIcon icon={checkmarkCircleOutline} color="success" />
-              </div>
-            </div>
+            <h3>Your cart is empty</h3>
+            <p>Looks like you haven't added anything yet.</p>
+            <IonButton mode="ios" className="shop-now-btn" routerLink="/app/products">
+              Start Shopping
+            </IonButton>
           </div>
         )}
       </IonContent>
 
       {items.length > 0 && (
-        <>
-          <IonFooter className="ion-no-border cart-footer">
+        <IonFooter className="ion-no-border cart-footer">
+          <div className="footer-flex-container">
+            <div className="delivery-type-box">
+              <span className="type-label">Delivery Type</span>
+              <div className="type-selector" onClick={() => setOrderType(orderType === 1 ? 2 : 1)}>
+                <IonIcon icon={cubeOutline} className="truck-icon" />
+                <span className={`type-val ${orderType === 1 ? 'emergency' : 'standard'}`}>
+                  {orderType === 1 ? 'Emergency' : 'Standard'}
+                </span>
+                <IonIcon icon={chevronForwardOutline} className="arrow-down-icon" />
+              </div>
+            </div>
+
             <IonButton
-              expand="block"
-              className={`place-order-btn ${selectedClient ? 'confirm-btn' : ''}`}
+              className={`place-order-btn-new ${selectedClient ? 'confirm-btn' : ''}`}
               onClick={handlePlaceOrderClick}
               disabled={isPlacingOrder}
             >
               {isPlacingOrder ? (
                 <IonSpinner name="crescent" />
               ) : (
-                selectedClient
-                  ? (editingOrderId ? 'Confirm & Update Order' : 'Confirm & Place Order')
-                  : (editingOrderId ? 'Select Client to Update Order' : 'Select Client to Place Order')
+                <>
+                  {selectedClient ? 'Confirm Order' : 'Select Client'} <IonIcon icon={chevronForwardOutline} className="btn-arrow" />
+                </>
               )}
-              {!isPlacingOrder && <IonIcon icon={chevronForwardOutline} slot="end" />}
             </IonButton>
-          </IonFooter>
-
-          {/* Client Selection Modal */}
-          <IonModal
-            isOpen={isClientModalOpen}
-            onDidDismiss={() => setIsClientModalOpen(false)}
-            className="client-selection-modal"
-            initialBreakpoint={0.7}
-            breakpoints={[0, 0.7, 0.9]}
-          >
-            <div className="modal-sheet-container">
-              <div className="sheet-header">
-                <div className="drag-handle"></div>
-                <div className="header-content">
-                  <h2>Select Client</h2>
-                  <IonButton fill="clear" onClick={() => setIsClientModalOpen(false)}>
-                    <IonIcon icon={closeOutline} />
-                  </IonButton>
-                </div>
-                <IonSearchbar
-                  value={searchTerm}
-                  onIonInput={(e) => setSearchTerm(e.detail.value!)}
-                  placeholder="Search clients..."
-                  mode="ios"
-                  className="modal-search"
-                />
-              </div>
-
-              <IonContent className="ion-padding">
-                {loadingClients ? (
-                  <div className="modal-loader">
-                    <IonSpinner name="crescent" color="primary" />
-                    <p>Fetching clients...</p>
-                  </div>
-                ) : filteredClients.length > 0 ? (
-                  <div className="client-list">
-                    {filteredClients.map(client => (
-                      <div
-                        key={client._id}
-                        className="client-item ion-activatable"
-                        onClick={() => handleSelectClient(client)}
-                      >
-                        <IonRippleEffect />
-                        <div className="client-icon-circle">
-                          <IonIcon icon={personOutline} />
-                        </div>
-                        <div className="client-info">
-                          <span className="client-name">{client.name}</span>
-                          <span className="client-sub">{client.city}, {client.state}</span>
-                        </div>
-                        <IonIcon icon={chevronForwardOutline} className="select-arrow" />
-                      </div>
-                    ))}
-                  </div>
-                ) : (
-                  <div className="no-clients">
-                    <IonIcon icon={searchOutline} />
-                    <p>No clients match your search</p>
-                  </div>
-                )}
-              </IonContent>
-            </div>
-          </IonModal>
-        </>
+          </div>
+        </IonFooter>
       )}
 
+      {/* Client Selection Modal */}
+      <IonModal
+        isOpen={isClientModalOpen}
+        onDidDismiss={() => setIsClientModalOpen(false)}
+        className="client-selection-modal"
+        initialBreakpoint={0.7}
+        breakpoints={[0, 0.7, 0.9]}
+      >
+        <div className="modal-sheet-container">
+          <div className="sheet-header">
+            <div className="drag-handle"></div>
+            <div className="header-content">
+              <h2>Select Client</h2>
+              <IonButton fill="clear" onClick={() => setIsClientModalOpen(false)}>
+                <IonIcon icon={closeOutline} />
+              </IonButton>
+            </div>
+            <IonSearchbar
+              value={searchTerm}
+              onIonInput={(e) => setSearchTerm(e.detail.value!)}
+              placeholder="Search clients..."
+              mode="ios"
+              className="modal-search"
+            />
+          </div>
+
+          <IonContent className="ion-padding">
+            {loadingClients ? (
+              <div className="modal-loader">
+                <IonSpinner name="crescent" color="primary" />
+                <p>Fetching clients...</p>
+              </div>
+            ) : filteredClients.length > 0 ? (
+              <div className="client-list">
+                {filteredClients.map(client => (
+                  <div
+                    key={client._id}
+                    className="client-item ion-activatable"
+                    onClick={() => handleSelectClient(client)}
+                  >
+                    <IonRippleEffect />
+                    <div className="client-icon-circle">
+                      <IonIcon icon={personOutline} />
+                    </div>
+                    <div className="client-info">
+                      <span className="client-name">{client.name}</span>
+                      <span className="client-sub">{client.city}, {client.state}</span>
+                    </div>
+                    <IonIcon icon={chevronForwardOutline} className="select-arrow" />
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="no-clients">
+                <IonIcon icon={searchOutline} />
+                <p>No clients match your search</p>
+              </div>
+            )}
+          </IonContent>
+        </div>
+      </IonModal>
       {/* High-End Success Climax Overlay */}
       <IonModal isOpen={showSuccess} className="success-overlay-modal" backdropDismiss={false}>
         <div className="success-climax-container">

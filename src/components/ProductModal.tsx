@@ -100,14 +100,14 @@ const ProductModal: React.FC<ProductModalProps> = ({ product, initialQuantity = 
                     )}
                     {selectedSize.BT && (
                       <div className="mini-spec">
-                        <span className="m-label">Bottom</span>
+                        <span className="m-label">Breadth</span>
                         <span className="m-val">{selectedSize.BT} in</span>
                       </div>
                     )}
                     {selectedSize.WT && (
                       <div className="mini-spec">
-                        <span className="m-label">Weight</span>
-                        <span className="m-val">{selectedSize.WT} g</span>
+                        <span className="m-label">Width</span>
+                        <span className="m-val">{selectedSize.WT} in</span>
                       </div>
                     )}
                   </div>

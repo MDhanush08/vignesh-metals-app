@@ -143,11 +143,11 @@
   background-color: #10b981;
 }
 
-.status-strip.in-transit {
+.status-strip.approved {
   background-color: #3b82f6;
 }
 
-.status-strip.processing {
+.status-strip.pending {
   background-color: #8b5cf6;
 }
 
@@ -164,6 +164,7 @@
 
 .order-main-info {
   flex: 1;
+  min-width: 0;
 }
 
 .order-meta-header {
@@ -207,6 +208,10 @@
   color: #1e293b;
   margin: 0 0 6px 0;
   line-height: 1.2;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 180px;
 }
 
 .order-meta-footer {
@@ -243,7 +248,7 @@
   font-weight: 700;
 }
 
-.status-indicator-pill.processing {
+.status-indicator-pill.pending {
   background: #f5f3ff;
   color: #7c3aed;
 }
@@ -253,7 +258,7 @@
   color: #059669;
 }
 
-.status-indicator-pill.in-transit {
+.status-indicator-pill.approved {
   background: #eff6ff;
   color: #2563eb;
 }
@@ -269,7 +274,7 @@
   border-radius: 50%;
 }
 
-.status-indicator-pill.processing .status-dot {
+.status-indicator-pill.pending .status-dot {
   background: #7c3aed;
 }
 
@@ -277,7 +282,7 @@
   background: #059669;
 }
 
-.status-indicator-pill.in-transit .status-dot {
+.status-indicator-pill.approved .status-dot {
   background: #2563eb;
 }
 

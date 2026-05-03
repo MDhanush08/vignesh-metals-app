@@ -28,8 +28,9 @@ import {
 } from 'ionicons/icons';
 import React, { useState, useEffect } from 'react';
 import { useHistory } from 'react-router-dom';
-import { getOrders, ApiOrder } from '../services/orderService';
+import { getOrders, ApiOrder, getTotalOrderDownloadUrl } from '../services/orderService';
 import { getClientList, ApiClient } from '../services/clientService';
+import { downloadOutline } from 'ionicons/icons';
 import './OrderHistory.css';
 
 const OrderHistory: React.FC = () => {
@@ -43,7 +44,7 @@ const OrderHistory: React.FC = () => {
   const [clientsMap, setClientsMap] = useState<Record<string, string>>({});
   const [present] = useIonToast();
 
-  const statuses = ['All', 'Delivered', 'Processing', 'In Transit', 'Cancelled'];
+  const statuses = ['All', 'Pending', 'Approved', 'Delivered'];
   const types = ['All', 'General', 'Emergency'];
 
   useIonViewWillEnter(() => {
@@ -65,15 +66,14 @@ const OrderHistory: React.FC = () => {
       setClientsMap(cMap);
 
       const result = await getOrders(1, 50);
-      console.log("response .... Orders", result);
 
       const mappedOrders = result.response.data.map((o: ApiOrder) => ({
         id: o.order_number || o._id.substring(0, 8),
         realId: o._id,
-        shopName: cMap[o.client_id] || o.email.split('@')[0].toUpperCase() || 'CLIENT', // Fallback to email prefix
+        shopName: (o.client_id as any)?.name || cMap[o.client_id as any] || 'CLIENT',
         type: o.order_type === 1 ? 'Emergency' : 'General',
         date: new Date(o.approve_at || Date.now()).toLocaleDateString(),
-        status: o.status === 1 ? 'Processing' : o.status === 2 ? 'In Transit' : 'Delivered'
+        status: o.status === 1 ? 'Pending' : o.status === 2 ? 'Approved' : 'Delivered'
       }));
 
       setOrders(mappedOrders);
@@ -97,12 +97,63 @@ const OrderHistory: React.FC = () => {
     return matchesSearch && matchesStatus && matchesType;
   });
 
+  const handleDownloadAll = async () => {
+    const downloadUrl = getTotalOrderDownloadUrl();
+
+    present({
+      message: 'Preparing all order records...',
+      duration: 2000,
+      color: 'primary',
+      position: 'bottom'
+    });
+
+    try {
+      const token = localStorage.getItem('token');
+      const response = await fetch(downloadUrl, {
+        method: 'GET',
+        headers: {
+          ...(token ? { 'Authorization': `Bearer ${token}` } : {})
+        }
+      });
+
+      if (!response.ok) throw new Error('Global export failed');
+
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', `all-orders-${new Date().toISOString().split('T')[0]}.csv`);
+      document.body.appendChild(link);
+      link.click();
+
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+
+      present({
+        message: 'Global export started!',
+        duration: 2000,
+        color: 'success'
+      });
+    } catch (error) {
+      console.error('Export error:', error);
+      present({
+        message: 'Failed to export orders. Please try again later.',
+        duration: 3000,
+        color: 'danger'
+      });
+    }
+  };
+
   return (
     <IonPage>
       <IonHeader className="ion-no-border">
         <IonToolbar className="order-review-header">
           <IonTitle>Order Review</IonTitle>
           <IonButtons slot="end">
+            <IonButton onClick={handleDownloadAll} className="global-download-btn">
+              <IonIcon icon={downloadOutline} slot="icon-only" />
+            </IonButton>
             <IonButton>
               <IonIcon icon={notificationsOutline} slot="icon-only" />
             </IonButton>

@@ -8,7 +8,11 @@ import {
   IonText,
   useIonAlert,
   IonRippleEffect,
-  IonSpinner
+  IonSpinner,
+  IonModal,
+  IonButton,
+  IonInput,
+  useIonToast
 } from '@ionic/react';
 import {
   logOutOutline,
@@ -16,9 +20,12 @@ import {
   personOutline,
   cartOutline,
   chevronForwardOutline,
-  shieldCheckmarkOutline,
   lockClosedOutline,
-  peopleOutline
+  peopleOutline,
+  eyeOutline,
+  eyeOffOutline,
+  closeOutline,
+  keyOutline
 } from 'ionicons/icons';
 import React, { useState, useEffect } from 'react';
 import { useHistory } from 'react-router-dom';
@@ -29,9 +36,21 @@ import './Profile.css';
 const Profile: React.FC = () => {
   const history = useHistory();
   const [presentAlert] = useIonAlert();
+  const [present] = useIonToast();
   const user = authService.getUser();
   const [clientCount, setClientCount] = useState<number | null>(null);
   const [loading, setLoading] = useState(false);
+
+  // Change Password Modal State
+  const [showChangePwd, setShowChangePwd] = useState(false);
+  const [oldPwd, setOldPwd] = useState('');
+  const [newPwd, setNewPwd] = useState('');
+  const [confirmPwd, setConfirmPwd] = useState('');
+  const [showOld, setShowOld] = useState(false);
+  const [showNew, setShowNew] = useState(false);
+  const [showConfirm, setShowConfirm] = useState(false);
+  const [pwdLoading, setPwdLoading] = useState(false);
+  const [pwdErrors, setPwdErrors] = useState<{ old?: string; new?: string; confirm?: string }>({});
 
   useEffect(() => {
     fetchClientCount();
@@ -43,6 +62,43 @@ const Profile: React.FC = () => {
       setClientCount(response.response.total);
     } catch (error) {
       console.error('Error fetching client count:', error);
+    }
+  };
+
+  const resetPwdForm = () => {
+    setOldPwd(''); setNewPwd(''); setConfirmPwd('');
+    setShowOld(false); setShowNew(false); setShowConfirm(false);
+    setPwdErrors({});
+  };
+
+  const handleChangePassword = async () => {
+    const errors: { old?: string; new?: string; confirm?: string } = {};
+    if (!oldPwd.trim()) errors.old = 'Current password is required';
+    if (!newPwd.trim()) errors.new = 'New password is required';
+    else if (newPwd.length < 6) errors.new = 'Password must be at least 6 characters';
+    if (!confirmPwd.trim()) errors.confirm = 'Please confirm your new password';
+    else if (newPwd !== confirmPwd) errors.confirm = 'Passwords do not match';
+
+    if (Object.keys(errors).length > 0) {
+      setPwdErrors(errors);
+      return;
+    }
+    setPwdErrors({});
+
+    setPwdLoading(true);
+    try {
+      await authService.changePassword({
+        old_password: oldPwd,
+        new_password: newPwd,
+        confirm_password: confirmPwd
+      });
+      present({ message: 'Password changed successfully!', duration: 2500, color: 'success', position: 'bottom' });
+      setShowChangePwd(false);
+      resetPwdForm();
+    } catch (error: any) {
+      present({ message: error.message || 'Failed to change password. Check your current password.', duration: 3000, color: 'danger', position: 'bottom' });
+    } finally {
+      setPwdLoading(false);
     }
   };
 
@@ -138,7 +194,7 @@ const Profile: React.FC = () => {
         </div>
 
         <div className="profile-actions">
-          <button className="action-tile ion-activatable" onClick={() => console.log('Change Password clicked')}>
+          <button className="action-tile ion-activatable" onClick={() => setShowChangePwd(true)}>
             <IonRippleEffect />
             <div className="action-icon password">
               <IonIcon icon={lockClosedOutline} />
@@ -160,10 +216,106 @@ const Profile: React.FC = () => {
         <div className="version-info">
           <p>Vignesh Metals App v1.0.4</p>
         </div>
+
+        {/* Change Password Modal */}
+        <IonModal
+          isOpen={showChangePwd}
+          onDidDismiss={() => { setShowChangePwd(false); resetPwdForm(); }}
+          className="change-pwd-modal-centered"
+        >
+          {/* Header */}
+          <div className="pwd-modal-header">
+            <div className="pwd-modal-title-row">
+              <div className="pwd-modal-icon">
+                <IonIcon icon={keyOutline} />
+              </div>
+              <div>
+                <h2>Change Password</h2>
+                <p>Update your account security</p>
+              </div>
+            </div>
+            <button className="pwd-close-btn" onClick={() => { setShowChangePwd(false); resetPwdForm(); }}>
+              <IonIcon icon={closeOutline} />
+            </button>
+          </div>
+
+          {/* Scrollable Form + Buttons */}
+          <IonContent className="pwd-ion-content">
+            <div className="pwd-form-body">
+              {/* Current Password */}
+              <div className="pwd-input-group">
+                <label className="pwd-label">Current Password</label>
+                <div className={`pwd-input-wrap ${pwdErrors.old ? 'err' : ''}`}>
+                  <IonInput
+                    type={showOld ? 'text' : 'password'}
+                    value={oldPwd}
+                    onIonInput={e => setOldPwd(e.detail.value!)}
+                    placeholder="Enter current password"
+                    className="pwd-native-input"
+                  />
+                  <button type="button" className="pwd-eye-btn" onClick={() => setShowOld(!showOld)}>
+                    <IonIcon icon={showOld ? eyeOffOutline : eyeOutline} />
+                  </button>
+                </div>
+                {pwdErrors.old && <span className="pwd-error">{pwdErrors.old}</span>}
+              </div>
+
+              {/* New Password */}
+              <div className="pwd-input-group">
+                <label className="pwd-label">New Password</label>
+                <div className={`pwd-input-wrap ${pwdErrors.new ? 'err' : ''}`}>
+                  <IonInput
+                    type={showNew ? 'text' : 'password'}
+                    value={newPwd}
+                    onIonInput={e => setNewPwd(e.detail.value!)}
+                    placeholder="Enter new password"
+                    className="pwd-native-input"
+                  />
+                  <button type="button" className="pwd-eye-btn" onClick={() => setShowNew(!showNew)}>
+                    <IonIcon icon={showNew ? eyeOffOutline : eyeOutline} />
+                  </button>
+                </div>
+                {pwdErrors.new && <span className="pwd-error">{pwdErrors.new}</span>}
+              </div>
+
+              {/* Confirm Password */}
+              <div className="pwd-input-group">
+                <label className="pwd-label">Confirm New Password</label>
+                <div className={`pwd-input-wrap ${pwdErrors.confirm ? 'err' : ''}`}>
+                  <IonInput
+                    type={showConfirm ? 'text' : 'password'}
+                    value={confirmPwd}
+                    onIonInput={e => setConfirmPwd(e.detail.value!)}
+                    placeholder="Re-enter new password"
+                    className="pwd-native-input"
+                  />
+                  <button type="button" className="pwd-eye-btn" onClick={() => setShowConfirm(!showConfirm)}>
+                    <IonIcon icon={showConfirm ? eyeOffOutline : eyeOutline} />
+                  </button>
+                </div>
+                {pwdErrors.confirm && <span className="pwd-error">{pwdErrors.confirm}</span>}
+              </div>
+
+              {/* Buttons inside scroll area */}
+              <div className="pwd-modal-footer">
+                <IonButton
+                  expand="block"
+                  className="pwd-submit-btn"
+                  onClick={handleChangePassword}
+                  disabled={pwdLoading}
+                >
+                  {pwdLoading ? <IonSpinner name="crescent" /> : 'Update Password'}
+                </IonButton>
+                <button type="button" className="pwd-cancel-btn" onClick={() => { setShowChangePwd(false); resetPwdForm(); }}>
+                  Cancel
+                </button>
+              </div>
+            </div>
+          </IonContent>
+        </IonModal>
       </IonContent>
     </IonPage>
   );
 };
 
 export default Profile;
-

@@ -26,11 +26,12 @@ import {
   callOutline,
   addOutline,
   chevronForwardOutline,
-  peopleOutline
+  peopleOutline,
+  downloadOutline
 } from 'ionicons/icons';
 import React, { useState, useEffect } from 'react';
 import { useHistory } from 'react-router-dom';
-import { getClients, ApiClient } from '../services/clientService';
+import { getClients, ApiClient, getClientsDownloadUrl } from '../services/clientService';
 import './Clients.css';
 
 const Clients: React.FC = () => {
@@ -61,6 +62,57 @@ const Clients: React.FC = () => {
     }
   };
 
+  const handleDownloadClients = async () => {
+    const downloadUrl = getClientsDownloadUrl();
+
+    present({
+      message: 'Preparing client data export...',
+      duration: 2000,
+      color: 'primary',
+      position: 'bottom'
+    });
+
+    try {
+      const token = localStorage.getItem('token');
+      const response = await fetch(downloadUrl, {
+        method: 'GET',
+        headers: {
+          ...(token ? { 'Authorization': `Bearer ${token}` } : {})
+        }
+      });
+
+      if (!response.ok) {
+        throw new Error('Server returned an error');
+      }
+
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', `clients-registry-${new Date().toISOString().split('T')[0]}.csv`);
+      document.body.appendChild(link);
+      link.click();
+
+      // Cleanup
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+
+      present({
+        message: 'Client list download started!',
+        duration: 2000,
+        color: 'success'
+      });
+    } catch (error) {
+      console.error('Download error:', error);
+      present({
+        message: 'Download failed. Please try again later.',
+        duration: 3000,
+        color: 'danger'
+      });
+    }
+  };
+
   const filteredClients = clients.filter(c =>
     c.name.toLowerCase().includes(searchText.toLowerCase()) ||
     c.client_code?.toLowerCase().includes(searchText.toLowerCase()) ||
@@ -73,6 +125,9 @@ const Clients: React.FC = () => {
         <IonToolbar className="clients-header">
           <IonTitle>Our Clients</IonTitle>
           <IonButtons slot="end">
+            <IonButton fill="clear" onClick={handleDownloadClients}>
+              <IonIcon icon={downloadOutline} slot="icon-only" />
+            </IonButton>
             <IonButton fill="clear" routerLink="/app/clients-add">
               <IonIcon icon={addOutline} slot="icon-only" />
             </IonButton>
@@ -85,12 +140,6 @@ const Clients: React.FC = () => {
 
       <IonContent className="clients-content">
         <div className="search-wrapper">
-          <div className="clients-page-intro">
-            <IonText color="primary">
-              <h1>Client Registry</h1>
-              <p>Manage your business partners and contacts</p>
-            </IonText>
-          </div>
           <IonSearchbar
             placeholder="Search by Name, Code or City"
             className="premium-searchbar"

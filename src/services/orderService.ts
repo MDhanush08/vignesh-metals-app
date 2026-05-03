@@ -87,3 +87,7 @@ export const updateOrder = async (id: string, data: {
 export const getOrderDownloadUrl = (orderId: string): string => {
   return `${API_BASE_URL}order/download/${orderId}`;
 };
+
+export const getTotalOrderDownloadUrl = (): string => {
+  return `${API_BASE_URL}order/download`;
+};

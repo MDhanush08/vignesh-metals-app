@@ -1,6 +1,19 @@
 .add-edit-header {
-  --background: #fff;
-  --color: var(--ion-color-primary);
+  --background: var(--ion-color-primary);
+  --color: #ffffff;
+  --border-width: 0;
+  --padding-top: 10px;
+  --padding-bottom: 5px;
+}
+
+.add-edit-header ion-title {
+  font-weight: 700;
+  font-size: 20px;
+  letter-spacing: -0.5px;
+}
+
+.add-edit-header ion-button {
+  --color: #ffffff;
 }
 
 .add-edit-content {
@@ -78,15 +91,21 @@
   font-weight: 700;
   color: var(--ion-color-dark);
   --border-width: 0;
+  --highlight-height: 0;
   --highlight-color-focused: transparent;
   --highlight-color-valid: transparent;
   --highlight-color-invalid: transparent;
   width: 100%;
   height: 100%;
-  display: flex !important;
-  align-items: center;
   caret-color: #000000 !important;
   --caret-color: #000000 !important;
+}
+
+.input-inner ion-input::part(native),
+.input-inner ion-input .native-input {
+  caret-color: #000000 !important;
+  padding-top: 0 !important;
+  padding-bottom: 0 !important;
 }
 
 .error-message {
