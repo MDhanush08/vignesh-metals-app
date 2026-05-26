@@ -1,18 +1,8 @@
 import {
   IonContent,
-  IonHeader,
   IonPage,
-  IonTitle,
-  IonToolbar,
-  IonButtons,
   IonIcon,
   IonButton,
-  IonCard,
-  IonCardHeader,
-  IonCardTitle,
-  IonCardContent,
-  IonBadge,
-  IonText,
   IonSearchbar,
   IonSpinner,
   useIonToast,
@@ -21,16 +11,16 @@ import {
 import {
   notificationsOutline,
   calendarOutline,
-  idCardOutline,
   chevronForwardOutline,
   filterOutline,
-  cubeOutline
+  cubeOutline,
+  downloadOutline
 } from 'ionicons/icons';
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useHistory } from 'react-router-dom';
 import { getOrders, ApiOrder, getTotalOrderDownloadUrl } from '../services/orderService';
 import { getClientList, ApiClient } from '../services/clientService';
-import { downloadOutline } from 'ionicons/icons';
+import AppHeader from '../components/common/AppHeader';
 import './OrderHistory.css';
 
 const OrderHistory: React.FC = () => {
@@ -41,7 +31,6 @@ const OrderHistory: React.FC = () => {
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [orders, setOrders] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  const [clientsMap, setClientsMap] = useState<Record<string, string>>({});
   const [present] = useIonToast();
 
   const statuses = ['All', 'Pending', 'Approved', 'Delivered'];
@@ -57,13 +46,11 @@ const OrderHistory: React.FC = () => {
   const fetchOrders = async () => {
     setLoading(true);
     try {
-      // Fetch clients first to map names
       const clientsResponse = await getClientList(1, 200);
       const cMap: Record<string, string> = {};
       clientsResponse.response.data.forEach((c: ApiClient) => {
         cMap[c._id] = c.name;
       });
-      setClientsMap(cMap);
 
       const result = await getOrders(1, 50);
 
@@ -78,12 +65,7 @@ const OrderHistory: React.FC = () => {
 
       setOrders(mappedOrders);
     } catch (error) {
-      console.error('Error fetching orders:', error);
-      present({
-        message: 'Failed to load orders.',
-        duration: 2000,
-        color: 'danger'
-      });
+      present({ message: 'Failed to load orders.', duration: 2000, color: 'danger' });
     } finally {
       setLoading(false);
     }
@@ -99,76 +81,57 @@ const OrderHistory: React.FC = () => {
 
   const handleDownloadAll = async () => {
     const downloadUrl = getTotalOrderDownloadUrl();
-
-    present({
-      message: 'Preparing all order records...',
-      duration: 2000,
-      color: 'primary',
-      position: 'bottom'
-    });
+    present({ message: 'Preparing all order records...', duration: 2000, color: 'primary', position: 'bottom' });
 
     try {
       const token = localStorage.getItem('token');
       const response = await fetch(downloadUrl, {
         method: 'GET',
-        headers: {
-          ...(token ? { 'Authorization': `Bearer ${token}` } : {})
-        }
+        headers: { ...(token ? { 'Authorization': `Bearer ${token}` } : {}) }
       });
 
       if (!response.ok) throw new Error('Global export failed');
 
       const blob = await response.blob();
       const url = window.URL.createObjectURL(blob);
-
       const link = document.createElement('a');
       link.href = url;
       link.setAttribute('download', `all-orders-${new Date().toISOString().split('T')[0]}.csv`);
       document.body.appendChild(link);
       link.click();
-
       document.body.removeChild(link);
       window.URL.revokeObjectURL(url);
 
-      present({
-        message: 'Global export started!',
-        duration: 2000,
-        color: 'success'
-      });
+      present({ message: 'Global export started!', duration: 2000, color: 'success' });
     } catch (error) {
-      console.error('Export error:', error);
-      present({
-        message: 'Failed to export orders. Please try again later.',
-        duration: 3000,
-        color: 'danger'
-      });
+      present({ message: 'Failed to export orders. Please try again later.', duration: 3000, color: 'danger' });
     }
   };
 
+  const RightButtons = (
+    <>
+      <IonButton onClick={handleDownloadAll} className="global-download-btn">
+        <IonIcon icon={downloadOutline} slot="icon-only" />
+      </IonButton>
+      <IonButton>
+        <IonIcon icon={notificationsOutline} slot="icon-only" />
+      </IonButton>
+    </>
+  );
+
   return (
     <IonPage>
-      <IonHeader className="ion-no-border">
-        <IonToolbar className="order-review-header">
-          <IonTitle>Order Review</IonTitle>
-          <IonButtons slot="end">
-            <IonButton onClick={handleDownloadAll} className="global-download-btn">
-              <IonIcon icon={downloadOutline} slot="icon-only" />
-            </IonButton>
-            <IonButton>
-              <IonIcon icon={notificationsOutline} slot="icon-only" />
-            </IonButton>
-          </IonButtons>
-        </IonToolbar>
-      </IonHeader>
+      <AppHeader title="Order Review" rightButtons={RightButtons} />
 
-      <IonContent className="order-review-content">
+      <IonContent className="page-content-premium">
         <div className="review-sticky-header">
           <div className="review-top-section">
             <IonSearchbar
               placeholder="Search by Order ID or Shop"
-              className="review-search"
+              className="premium-searchbar"
               value={searchText}
               onIonInput={e => setSearchText(e.detail.value!)}
+              mode="ios"
             />
             <IonButton
               fill="clear"
@@ -235,7 +198,7 @@ const OrderHistory: React.FC = () => {
             </div>
           ) : filteredOrders.length > 0 ? (
             filteredOrders.map((order) => (
-              <IonCard
+              <div
                 key={order.realId}
                 className="review-compact-card ion-activatable"
                 onClick={() => {
@@ -269,7 +232,7 @@ const OrderHistory: React.FC = () => {
                     <IonIcon icon={chevronForwardOutline} className="arrow-hint" />
                   </div>
                 </div>
-              </IonCard>
+              </div>
             ))
           ) : (
             <div className="no-orders-found">
@@ -285,3 +248,4 @@ const OrderHistory: React.FC = () => {
 };
 
 export default OrderHistory;
+

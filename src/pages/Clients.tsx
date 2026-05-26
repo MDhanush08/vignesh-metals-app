@@ -1,17 +1,8 @@
 import {
   IonContent,
-  IonHeader,
   IonPage,
-  IonTitle,
-  IonToolbar,
-  IonButtons,
   IonIcon,
   IonButton,
-  IonCard,
-  IonCardHeader,
-  IonCardTitle,
-  IonCardContent,
-  IonText,
   IonSearchbar,
   IonSpinner,
   useIonToast,
@@ -20,18 +11,20 @@ import {
   useIonViewWillEnter
 } from '@ionic/react';
 import {
-  notificationsOutline,
   personOutline,
   locationOutline,
   callOutline,
   addOutline,
   chevronForwardOutline,
   peopleOutline,
-  downloadOutline
+  downloadOutline,
+  notificationsOutline
 } from 'ionicons/icons';
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useHistory } from 'react-router-dom';
 import { getClients, ApiClient, getClientsDownloadUrl } from '../services/clientService';
+import AppHeader from '../components/common/AppHeader';
+import EmptyState from '../components/common/EmptyState';
 import './Clients.css';
 
 const Clients: React.FC = () => {
@@ -51,12 +44,7 @@ const Clients: React.FC = () => {
       const response = await getClients(1, 100);
       setClients(response.response.data);
     } catch (error) {
-      console.error('Error fetching clients:', error);
-      present({
-        message: 'Failed to load clients.',
-        duration: 2000,
-        color: 'danger'
-      });
+      present({ message: 'Failed to load clients.', duration: 2000, color: 'danger' });
     } finally {
       setLoading(false);
     }
@@ -64,82 +52,59 @@ const Clients: React.FC = () => {
 
   const handleDownloadClients = async () => {
     const downloadUrl = getClientsDownloadUrl();
-
-    present({
-      message: 'Preparing client data export...',
-      duration: 2000,
-      color: 'primary',
-      position: 'bottom'
-    });
+    present({ message: 'Preparing client data export...', duration: 2000, color: 'primary', position: 'bottom' });
 
     try {
       const token = localStorage.getItem('token');
       const response = await fetch(downloadUrl, {
         method: 'GET',
-        headers: {
-          ...(token ? { 'Authorization': `Bearer ${token}` } : {})
-        }
+        headers: { ...(token ? { 'Authorization': `Bearer ${token}` } : {}) }
       });
 
-      if (!response.ok) {
-        throw new Error('Server returned an error');
-      }
+      if (!response.ok) throw new Error('Server returned an error');
 
       const blob = await response.blob();
       const url = window.URL.createObjectURL(blob);
-
       const link = document.createElement('a');
       link.href = url;
       link.setAttribute('download', `clients-registry-${new Date().toISOString().split('T')[0]}.csv`);
       document.body.appendChild(link);
       link.click();
-
-      // Cleanup
       document.body.removeChild(link);
       window.URL.revokeObjectURL(url);
 
-      present({
-        message: 'Client list download started!',
-        duration: 2000,
-        color: 'success'
-      });
+      present({ message: 'Client list download started!', duration: 2000, color: 'success' });
     } catch (error) {
-      console.error('Download error:', error);
-      present({
-        message: 'Download failed. Please try again later.',
-        duration: 3000,
-        color: 'danger'
-      });
+      present({ message: 'Download failed. Please try again later.', duration: 3000, color: 'danger' });
     }
   };
 
   const filteredClients = clients.filter(c =>
-    c.name.toLowerCase().includes(searchText.toLowerCase()) ||
+    c.name?.toLowerCase().includes(searchText.toLowerCase()) ||
     c.client_code?.toLowerCase().includes(searchText.toLowerCase()) ||
-    c.city.toLowerCase().includes(searchText.toLowerCase())
+    c.city?.toLowerCase().includes(searchText.toLowerCase())
+  );
+
+  const HeaderButtons = (
+    <>
+      <IonButton fill="clear" onClick={handleDownloadClients}>
+        <IonIcon icon={downloadOutline} slot="icon-only" />
+      </IonButton>
+      <IonButton fill="clear" routerLink="/app/clients-add">
+        <IonIcon icon={addOutline} slot="icon-only" />
+      </IonButton>
+      <IonButton>
+        <IonIcon icon={notificationsOutline} slot="icon-only" />
+      </IonButton>
+    </>
   );
 
   return (
     <IonPage>
-      <IonHeader className="ion-no-border">
-        <IonToolbar className="clients-header">
-          <IonTitle>Our Clients</IonTitle>
-          <IonButtons slot="end">
-            <IonButton fill="clear" onClick={handleDownloadClients}>
-              <IonIcon icon={downloadOutline} slot="icon-only" />
-            </IonButton>
-            <IonButton fill="clear" routerLink="/app/clients-add">
-              <IonIcon icon={addOutline} slot="icon-only" />
-            </IonButton>
-            <IonButton>
-              <IonIcon icon={notificationsOutline} slot="icon-only" />
-            </IonButton>
-          </IonButtons>
-        </IonToolbar>
-      </IonHeader>
+      <AppHeader title="Our Clients" rightButtons={HeaderButtons} />
 
-      <IonContent className="clients-content">
-        <div className="search-wrapper">
+      <IonContent className="page-content-premium">
+        <div className="search-wrapper-premium">
           <IonSearchbar
             placeholder="Search by Name, Code or City"
             className="premium-searchbar"
@@ -195,14 +160,13 @@ const Clients: React.FC = () => {
               </div>
             ))
           ) : (
-            <div className="no-clients-found">
-              <IonIcon icon={peopleOutline} className="empty-icon" />
-              <h3>No Clients Found</h3>
-              <p>Start by adding your first client</p>
-              <IonButton fill="outline" color="primary" routerLink="/app/clients-add">
-                Add Client
-              </IonButton>
-            </div>
+            <EmptyState
+              icon={peopleOutline}
+              title="No Clients Found"
+              description="Start by adding your first client"
+              actionText="Add Client"
+              onAction={() => history.push('/app/clients-add')}
+            />
           )}
         </div>
 

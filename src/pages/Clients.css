@@ -16,11 +16,8 @@
   --color: #ffffff;
 }
 
-.clients-content {
-  --background: #f1f5f9;
-}
 
-.search-wrapper {
+.search-wrapper-premium {
   padding: 16px;
   background: #fff;
   border-bottom-left-radius: 20px;
@@ -75,31 +72,32 @@
   font-size: 20px;
 }
 
-/* Dynamic Colors for Icon Boxes */
+/* Dynamic Theme Colors for Icon Boxes */
 .icon-box.color-1 {
-  background: rgba(59, 130, 246, 0.1);
-  color: #3b82f6;
+  background: rgba(0, 51, 102, 0.1);
+  color: #003366;
 }
 
 .icon-box.color-2 {
-  background: rgba(16, 185, 129, 0.1);
-  color: #10b981;
+  background: rgba(176, 141, 87, 0.1);
+  color: #b08d57;
 }
 
 .icon-box.color-3 {
-  background: rgba(245, 158, 11, 0.1);
-  color: #f59e0b;
+  background: rgba(74, 85, 104, 0.1);
+  color: #4a5568;
 }
 
 .icon-box.color-4 {
-  background: rgba(239, 68, 68, 0.1);
-  color: #ef4444;
+  background: rgba(15, 23, 42, 0.1);
+  color: #0f172a;
 }
 
 .icon-box.color-5 {
-  background: rgba(139, 92, 246, 0.1);
-  color: #8b5cf6;
+  background: rgba(116, 130, 151, 0.1);
+  color: #748297;
 }
+
 
 .card-content-main {
   flex: 1;

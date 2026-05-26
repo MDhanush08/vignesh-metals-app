@@ -1,28 +1,23 @@
 import React, { useState, useRef, useEffect } from 'react';
 import {
   IonContent,
-  IonHeader,
   IonPage,
-  IonTitle,
-  IonToolbar,
   IonButtons,
   IonIcon,
   IonButton,
   IonSearchbar,
   useIonToast,
   IonModal,
-  IonText,
-  IonCheckbox,
   IonList,
   IonItem,
   IonLabel,
   IonSpinner,
+  IonCheckbox,
   useIonViewWillEnter
 } from '@ionic/react';
 import {
   notificationsOutline,
   optionsOutline,
-  closeOutline,
   downloadOutline,
   checkmarkCircle,
   searchOutline
@@ -32,6 +27,8 @@ import ProductModal from '../components/ProductModal';
 import { Product } from '../data/products';
 import { getProducts, getCategories, ApiProduct } from '../services/productService';
 import { useCart } from '../context/CartContext';
+import AppHeader from '../components/common/AppHeader';
+import EmptyState from '../components/common/EmptyState';
 import './Products.css';
 
 const Products: React.FC = () => {
@@ -60,24 +57,19 @@ const Products: React.FC = () => {
   const loadData = async () => {
     setLoading(true);
     try {
-      // Fetch categories first
       let categoryMap: Record<string, string> = {};
       try {
         const catResponse = await getCategories();
-
         const apiCats = catResponse.response.data;
         apiCats.forEach(cat => {
           categoryMap[cat._id] = cat.name;
         });
         setCategories(['All', ...apiCats.map(c => c.name)]);
       } catch (catError) {
-        console.error('Error fetching categories:', catError);
         setCategories(['All', 'Metal Works']);
       }
 
-      // Fetch products
       const response = await getProducts(1, 100);
-
       const apiProducts = response.response.data;
 
       const mappedProducts: Product[] = apiProducts.map((p: ApiProduct) => ({
@@ -99,15 +91,8 @@ const Products: React.FC = () => {
       }));
 
       setProducts(mappedProducts);
-
     } catch (error) {
-      console.error('Error fetching data:', error);
-      present({
-        message: 'Failed to load products. Please try again.',
-        duration: 3000,
-        color: 'danger',
-        position: 'bottom'
-      });
+      present({ message: 'Failed to load products.', duration: 3000, color: 'danger' });
     } finally {
       setLoading(false);
     }
@@ -151,12 +136,9 @@ const Products: React.FC = () => {
       sizeId: sizeId
     });
 
-    const sizeInfo = size ? ` [${size}]` : '';
-
     present({
-      message: `Added ${quantity} x ${product.name}${sizeInfo}`,
+      message: `Added ${quantity} x ${product.name}${size ? ` [${size}]` : ''}`,
       duration: 2000,
-      position: 'bottom',
       color: 'success',
       mode: 'ios'
     });
@@ -169,33 +151,25 @@ const Products: React.FC = () => {
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
-
-    present({
-      message: 'Downloading Catalog...',
-      duration: 2000,
-      position: 'top',
-      color: 'success',
-      mode: 'ios'
-    });
+    present({ message: 'Downloading Catalog...', duration: 2000, color: 'success' });
   };
+
+  const RightButtons = (
+    <>
+      <IonButton onClick={handleDownloadCatalog}>
+        <IonIcon icon={downloadOutline} slot="icon-only" />
+      </IonButton>
+      <IonButton>
+        <IonIcon icon={notificationsOutline} slot="icon-only" />
+      </IonButton>
+    </>
+  );
 
   return (
     <IonPage>
-      <IonHeader className="ion-no-border">
-        <IonToolbar className="products-header">
-          <IonTitle>Our Products</IonTitle>
-          <IonButtons slot="end">
-            <IonButton onClick={handleDownloadCatalog}>
-              <IonIcon icon={downloadOutline} slot="icon-only" />
-            </IonButton>
-            <IonButton>
-              <IonIcon icon={notificationsOutline} slot="icon-only" />
-            </IonButton>
-          </IonButtons>
-        </IonToolbar>
-      </IonHeader>
+      <AppHeader title="Our Products" rightButtons={RightButtons} />
 
-      <IonContent className="products-page-content">
+      <IonContent className="page-content-premium">
         <div className="search-filter-wrapper">
           <IonSearchbar
             value={searchText}
@@ -247,16 +221,13 @@ const Products: React.FC = () => {
         </div>
 
         {!loading && filteredProducts.length === 0 && (
-          <div className="no-results-premium">
-            <div className="empty-search-icon">
-              <IonIcon icon={searchOutline} />
-            </div>
-            <h3>No results found</h3>
-            <p>We couldn't find anything matching your search. Try different keywords or clear the filters.</p>
-            <IonButton mode="ios" className="clear-all-action" onClick={() => { setSearchText(''); setSelectedCategories(['All']); }}>
-              Clear Search & Filters
-            </IonButton>
-          </div>
+          <EmptyState
+            icon={searchOutline}
+            title="No results found"
+            description="We couldn't find anything matching your search. Try different keywords or clear the filters."
+            actionText="Clear Search & Filters"
+            onAction={() => { setSearchText(''); setSelectedCategories(['All']); }}
+          />
         )}
 
         <ProductModal

@@ -1,3 +1,4 @@
+import { ApiResponse, PaginatedResponse } from '../types/api.types';
 import { apiRequest } from './api';
 const API_BASE_URL = import.meta.env.VITE_API_URL;
 
@@ -21,40 +22,26 @@ export interface ApiClient {
   pan_number?: string;
 }
 
-export interface ClientsResponse {
-  response: {
-    data: ApiClient[];
-    total: number;
-    recordsPerPage: number;
-    currentPage: number;
-    totalPages: number;
-  };
-}
-
-export interface SingleClientResponse {
-  response: ApiClient;
-}
-
-export const getClients = async (page: number = 1, limit: number = 100): Promise<ClientsResponse> => {
+export const getClients = async (page: number = 1, limit: number = 100): Promise<PaginatedResponse<ApiClient>> => {
   return apiRequest(`clients/?limit=${limit}&page=${page}`, { method: 'GET' });
 };
 
-export const getClientList = async (page: number = 1, limit: number = 200): Promise<ClientsResponse> => {
+export const getClientList = async (page: number = 1, limit: number = 200): Promise<PaginatedResponse<ApiClient>> => {
   return apiRequest(`order/client`, { method: 'GET' });
 };
 
-export const getClientById = async (id: string): Promise<SingleClientResponse> => {
+export const getClientById = async (id: string): Promise<ApiResponse<ApiClient>> => {
   return apiRequest(`clients/${id}`, { method: 'GET' });
 };
 
-export const createClient = async (data: Partial<ApiClient>): Promise<SingleClientResponse> => {
+export const createClient = async (data: Partial<ApiClient>): Promise<ApiResponse<ApiClient>> => {
   return apiRequest(`clients/`, {
     method: 'POST',
     body: JSON.stringify(data)
   });
 };
 
-export const updateClient = async (id: string, data: Partial<ApiClient>): Promise<SingleClientResponse> => {
+export const updateClient = async (id: string, data: Partial<ApiClient>): Promise<ApiResponse<ApiClient>> => {
   return apiRequest(`clients/${id}`, {
     method: 'PUT',
     body: JSON.stringify(data)

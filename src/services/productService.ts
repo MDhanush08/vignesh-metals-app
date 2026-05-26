@@ -1,3 +1,4 @@
+import { ApiResponse, PaginatedResponse } from '../types/api.types';
 import { apiRequest } from './api';
 
 export interface ApiSize {
@@ -6,7 +7,7 @@ export interface ApiSize {
   BT: number;
   WT: number;
   _id: string;
-  price?: number; // Added just in case it exists in some items
+  price?: number;
 }
 
 export interface ApiProduct {
@@ -23,20 +24,6 @@ export interface ApiProduct {
   thumbnail: string;
 }
 
-export interface ProductsResponse {
-  data: ApiProduct[];
-  total: number;
-  recordsPerPage: number;
-  currentPage: number;
-  totalPages: number;
-  previous: string | null;
-  next: string | null;
-}
-
-export interface ApiResponse {
-  response: ProductsResponse;
-}
-
 export interface ApiCategory {
   _id: string;
   name: string;
@@ -47,20 +34,11 @@ export interface ApiCategory {
   thumbnail?: string;
 }
 
-export interface CategoriesResponse {
-  response: {
-    data: ApiCategory[];
-    total: number;
-    recordsPerPage: number;
-    currentPage: number;
-    totalPages: number;
-  };
-}
-
-export const getCategories = async (page: number = 1, limit: number = 100): Promise<CategoriesResponse> => {
+export const getCategories = async (page: number = 1, limit: number = 100): Promise<PaginatedResponse<ApiCategory>> => {
   return apiRequest(`categories/?page=${page}&limit=${limit}`, { method: 'GET' });
 };
 
-export const getProducts = async (page: number = 1, limit: number = 10): Promise<ApiResponse> => {
+export const getProducts = async (page: number = 1, limit: number = 10): Promise<PaginatedResponse<ApiProduct>> => {
   return apiRequest(`product/?page=${page}&limit=${limit}`, { method: 'GET' });
 };
+

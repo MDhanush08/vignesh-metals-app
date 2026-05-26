@@ -1,10 +1,6 @@
 import {
   IonContent,
-  IonHeader,
   IonPage,
-  IonTitle,
-  IonToolbar,
-  IonButtons,
   IonIcon,
   IonButton,
   IonSearchbar,
@@ -12,7 +8,6 @@ import {
   IonCard,
   IonCardHeader,
   IonCardTitle,
-  IonCardSubtitle,
   IonCardContent,
   IonGrid,
   IonRow,
@@ -23,11 +18,11 @@ import {
   notificationsOutline,
   locationOutline,
   calendarOutline,
-  alertCircleOutline,
   chevronForwardOutline,
   searchOutline
 } from 'ionicons/icons';
 import React from 'react';
+import AppHeader from '../components/common/AppHeader';
 import './Dashboard.css';
 
 const Dashboard: React.FC = () => {
@@ -38,23 +33,20 @@ const Dashboard: React.FC = () => {
     { id: 'ORD-003', shopName: 'Modern Build Solutions', date: '2024-03-03', location: 'Coimbatore, TN', type: 'General', status: 'Delivered' },
   ];
 
+  const RightButtons = (
+    <div className="notification-btn">
+      <IonButton>
+        <IonIcon icon={notificationsOutline} slot="icon-only" />
+      </IonButton>
+      <span className="dot"></span>
+    </div>
+  );
+
   return (
     <IonPage>
-      <IonHeader className="ion-no-border">
-        <IonToolbar className="dashboard-toolbar">
-          <IonTitle>Dashboard</IonTitle>
-          <IonButtons slot="end">
-            <div className="notification-btn">
-              <IonButton>
-                <IonIcon icon={notificationsOutline} slot="icon-only" />
-              </IonButton>
-              <span className="dot"></span>
-            </div>
-          </IonButtons>
-        </IonToolbar>
-      </IonHeader>
+      <AppHeader title="Dashboard" rightButtons={RightButtons} />
 
-      <IonContent className="ion-padding dashboard-content">
+      <IonContent className="page-content-premium ion-padding dashboard-content">
         <div className="sticky-header-container">
           <div className="welcome-banner">
             <IonText>
@@ -66,8 +58,9 @@ const Dashboard: React.FC = () => {
           <div className="search-section">
             <IonSearchbar
               placeholder="Search Order ID or Shop"
-              className="custom-searchbar"
+              className="premium-searchbar"
               searchIcon={searchOutline}
+              mode="ios"
             />
           </div>
 
@@ -127,3 +120,4 @@ const Dashboard: React.FC = () => {
 };
 
 export default Dashboard;
+

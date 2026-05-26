@@ -1,10 +1,6 @@
 import {
   IonContent,
-  IonHeader,
   IonPage,
-  IonTitle,
-  IonToolbar,
-  IonButtons,
   IonIcon,
   IonButton,
   IonText,
@@ -19,14 +15,14 @@ import {
   locationOutline,
   callOutline,
   cubeOutline,
-  notificationsOutline,
-  arrowBack
+  notificationsOutline
 } from 'ionicons/icons';
 import React, { useState } from 'react';
 import { useParams, useHistory } from 'react-router-dom';
 import { getOrderById, getOrderDownloadUrl } from '../services/orderService';
 import { getClientById } from '../services/clientService';
 import { useCart } from '../context/CartContext';
+import AppHeader from '../components/common/AppHeader';
 import './OrderDetails.css';
 
 const OrderDetails: React.FC = () => {
@@ -50,7 +46,6 @@ const OrderDetails: React.FC = () => {
       const data = result.response;
       setRawOrder(data);
 
-      // Fetch Client details for Name
       const clientId = typeof data.client_id === 'object' ? (data.client_id as any)._id : data.client_id;
       let clientName = 'CLIENT';
 
@@ -59,11 +54,8 @@ const OrderDetails: React.FC = () => {
         if (clientRes && clientRes.response) {
           clientName = clientRes.response.name;
         }
-      } catch (err) {
-        console.error("Error fetching client details in OrderDetails:", err);
-      }
+      } catch (err) { }
 
-      // Map API response to UI structure
       const mappedOrder = {
         id: data.order_number || data._id.substring(0, 8),
         clientName: clientName,
@@ -82,12 +74,7 @@ const OrderDetails: React.FC = () => {
 
       setOrder(mappedOrder);
     } catch (error) {
-      console.error('Error fetching order details:', error);
-      present({
-        message: 'Error loading order details.',
-        duration: 2000,
-        color: 'danger'
-      });
+      present({ message: 'Error loading order details.', duration: 2000, color: 'danger' });
     } finally {
       setLoading(false);
     }
@@ -96,53 +83,30 @@ const OrderDetails: React.FC = () => {
   const handleDownloadOrder = async () => {
     if (!id) return;
     const downloadUrl = getOrderDownloadUrl(id);
-
-    present({
-      message: 'Preparing order data...',
-      duration: 2000,
-      color: 'primary',
-      position: 'bottom'
-    });
+    present({ message: 'Preparing order data...', duration: 2000, color: 'primary', position: 'bottom' });
 
     try {
-      // Use fetch instead of direct link to include Authorization headers
       const token = localStorage.getItem('token');
       const response = await fetch(downloadUrl, {
         method: 'GET',
-        headers: {
-          ...(token ? { 'Authorization': `Bearer ${token}` } : {})
-        }
+        headers: { ...(token ? { 'Authorization': `Bearer ${token}` } : {}) }
       });
 
-      if (!response.ok) {
-        throw new Error('Server returned an error');
-      }
+      if (!response.ok) throw new Error('Server returned an error');
 
       const blob = await response.blob();
       const url = window.URL.createObjectURL(blob);
-
       const link = document.createElement('a');
       link.href = url;
       link.setAttribute('download', `order-${order?.id || id}.csv`);
       document.body.appendChild(link);
       link.click();
-
-      // Cleanup
       document.body.removeChild(link);
       window.URL.revokeObjectURL(url);
 
-      present({
-        message: 'Download started successfully!',
-        duration: 2000,
-        color: 'success'
-      });
+      present({ message: 'Download started successfully!', duration: 2000, color: 'success' });
     } catch (error) {
-      console.error('Download error:', error);
-      present({
-        message: 'Download failed. The server might be busy or unauthorized.',
-        duration: 3000,
-        color: 'danger'
-      });
+      present({ message: 'Download failed. Please try again.', duration: 3000, color: 'danger' });
     }
   };
 
@@ -156,45 +120,31 @@ const OrderDetails: React.FC = () => {
       quantity: item.quantity,
       image: 'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?auto=format&fit=crop&q=80&w=200',
       size: item.size || 'Small',
-      sizeId: item.size_id || item.size // Fallback
+      sizeId: item.size_id || item.size
     }));
 
     const clientId = typeof rawOrder.client_id === 'object' ? rawOrder.client_id._id : rawOrder.client_id;
     initializeEdit(id, cartItems, clientId, rawOrder.order_type);
 
-    present({
-      message: 'Order loaded into cart for editing.',
-      duration: 2000,
-      color: 'success'
-    });
-
+    present({ message: 'Order loaded into cart for editing.', duration: 2000, color: 'success' });
     history.push('/app/cart');
   };
 
+  const RightButtons = (
+    <IonButton>
+      <IonIcon icon={notificationsOutline} slot="icon-only" />
+    </IonButton>
+  );
+
   return (
     <IonPage>
-      <IonHeader className="ion-no-border">
-        <IonToolbar className="order-details-header">
-          <IonButtons slot="start">
-            <IonButton onClick={() => {
-              if (document.activeElement instanceof HTMLElement) {
-                document.activeElement.blur();
-              }
-              history.goBack();
-            }}>
-              <IonIcon icon={arrowBack} slot="icon-only" />
-            </IonButton>
-          </IonButtons>
-          <IonTitle>Order #{order?.id || '...'}</IonTitle>
-          <IonButtons slot="end">
-            <IonButton>
-              <IonIcon icon={notificationsOutline} slot="icon-only" />
-            </IonButton>
-          </IonButtons>
-        </IonToolbar>
-      </IonHeader>
+      <AppHeader
+        title={`Order #${order?.id || '...'}`}
+        showBackButton={true}
+        rightButtons={RightButtons}
+      />
 
-      <IonContent className="order-details-content">
+      <IonContent className="page-content-premium">
         {loading ? (
           <div className="ion-text-center ion-padding">
             <IonSpinner name="crescent" color="primary" />
@@ -291,3 +241,4 @@ const OrderDetails: React.FC = () => {
 };
 
 export default OrderDetails;
+

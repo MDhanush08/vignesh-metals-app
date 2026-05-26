@@ -1,9 +1,6 @@
 import {
   IonContent,
   IonPage,
-  IonHeader,
-  IonToolbar,
-  IonTitle,
   IonIcon,
   IonText,
   useIonAlert,
@@ -25,12 +22,14 @@ import {
   eyeOutline,
   eyeOffOutline,
   closeOutline,
-  keyOutline
+  keyOutline,
+  notificationsOutline
 } from 'ionicons/icons';
 import React, { useState, useEffect } from 'react';
 import { useHistory } from 'react-router-dom';
 import { authService } from '../services/authService';
 import { getClients } from '../services/clientService';
+import AppHeader from '../components/common/AppHeader';
 import './Profile.css';
 
 const Profile: React.FC = () => {
@@ -39,7 +38,6 @@ const Profile: React.FC = () => {
   const [present] = useIonToast();
   const user = authService.getUser();
   const [clientCount, setClientCount] = useState<number | null>(null);
-  const [loading, setLoading] = useState(false);
 
   // Change Password Modal State
   const [showChangePwd, setShowChangePwd] = useState(false);
@@ -60,9 +58,7 @@ const Profile: React.FC = () => {
     try {
       const response = await getClients(1, 1);
       setClientCount(response.response.total);
-    } catch (error) {
-      console.error('Error fetching client count:', error);
-    }
+    } catch (error) { }
   };
 
   const resetPwdForm = () => {
@@ -92,11 +88,11 @@ const Profile: React.FC = () => {
         new_password: newPwd,
         confirm_password: confirmPwd
       });
-      present({ message: 'Password changed successfully!', duration: 2500, color: 'success', position: 'bottom' });
+      present({ message: 'Password changed successfully!', duration: 2500, color: 'success' });
       setShowChangePwd(false);
       resetPwdForm();
     } catch (error: any) {
-      present({ message: error.message || 'Failed to change password. Check your current password.', duration: 3000, color: 'danger', position: 'bottom' });
+      present({ message: error.message || 'Failed to change password.', duration: 3000, color: 'danger' });
     } finally {
       setPwdLoading(false);
     }
@@ -105,14 +101,10 @@ const Profile: React.FC = () => {
   const handleLogout = () => {
     presentAlert({
       header: 'Confirm Logout',
-      message: 'Are you sure you want to sign out from the application?',
+      message: 'Are you sure you want to sign out?',
       cssClass: 'logout-alert',
       buttons: [
-        {
-          text: 'Stay',
-          role: 'cancel',
-          cssClass: 'alert-button-cancel'
-        },
+        { text: 'Stay', role: 'cancel', cssClass: 'alert-button-cancel' },
         {
           text: 'Sign Out',
           role: 'confirm',
@@ -127,9 +119,17 @@ const Profile: React.FC = () => {
     });
   };
 
+  const RightButtons = (
+    <IonButton>
+      <IonIcon icon={notificationsOutline} slot="icon-only" />
+    </IonButton>
+  );
+
   return (
     <IonPage>
-      <IonContent className="profile-content">
+      <AppHeader title="My Profile" rightButtons={RightButtons} />
+
+      <IonContent className="page-content-premium profile-content">
         <div className="profile-hero">
           <div className="avatar-container">
             <div className="avatar-ring">
@@ -170,7 +170,7 @@ const Profile: React.FC = () => {
         </div>
 
         <div className="profile-details-list">
-          <h3>Personal Information</h3>
+          <h3 className="section-title-premium">Personal Information</h3>
           <div className="details-card">
             <div className="detail-item">
               <div className="detail-icon">
@@ -223,7 +223,6 @@ const Profile: React.FC = () => {
           onDidDismiss={() => { setShowChangePwd(false); resetPwdForm(); }}
           className="change-pwd-modal-centered"
         >
-          {/* Header */}
           <div className="pwd-modal-header">
             <div className="pwd-modal-title-row">
               <div className="pwd-modal-icon">
@@ -239,10 +238,8 @@ const Profile: React.FC = () => {
             </button>
           </div>
 
-          {/* Scrollable Form + Buttons */}
           <IonContent className="pwd-ion-content">
             <div className="pwd-form-body">
-              {/* Current Password */}
               <div className="pwd-input-group">
                 <label className="pwd-label">Current Password</label>
                 <div className={`pwd-input-wrap ${pwdErrors.old ? 'err' : ''}`}>
@@ -260,7 +257,6 @@ const Profile: React.FC = () => {
                 {pwdErrors.old && <span className="pwd-error">{pwdErrors.old}</span>}
               </div>
 
-              {/* New Password */}
               <div className="pwd-input-group">
                 <label className="pwd-label">New Password</label>
                 <div className={`pwd-input-wrap ${pwdErrors.new ? 'err' : ''}`}>
@@ -278,7 +274,6 @@ const Profile: React.FC = () => {
                 {pwdErrors.new && <span className="pwd-error">{pwdErrors.new}</span>}
               </div>
 
-              {/* Confirm Password */}
               <div className="pwd-input-group">
                 <label className="pwd-label">Confirm New Password</label>
                 <div className={`pwd-input-wrap ${pwdErrors.confirm ? 'err' : ''}`}>
@@ -296,7 +291,6 @@ const Profile: React.FC = () => {
                 {pwdErrors.confirm && <span className="pwd-error">{pwdErrors.confirm}</span>}
               </div>
 
-              {/* Buttons inside scroll area */}
               <div className="pwd-modal-footer">
                 <IonButton
                   expand="block"
@@ -319,3 +313,4 @@ const Profile: React.FC = () => {
 };
 
 export default Profile;
+

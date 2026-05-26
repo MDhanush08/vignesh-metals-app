@@ -1,22 +1,16 @@
 import {
   IonContent,
-  IonHeader,
   IonPage,
-  IonTitle,
-  IonToolbar,
   IonButtons,
   IonIcon,
   IonButton,
-  IonList,
-  IonItem,
-  IonLabel,
-  IonThumbnail,
   IonText,
   IonFooter,
-  IonGrid,
-  IonRow,
-  IonCol,
-  IonBadge,
+  IonSpinner,
+  useIonToast,
+  IonRippleEffect,
+  IonSearchbar,
+  IonModal,
   useIonViewWillEnter,
   useIonViewWillLeave
 } from '@ionic/react';
@@ -35,11 +29,11 @@ import {
 } from 'ionicons/icons';
 import React, { useState, useEffect } from 'react';
 import { useHistory } from 'react-router-dom';
-import { PRODUCTS } from '../data/products';
 import { getClientList, ApiClient, getClientById } from '../services/clientService';
 import { createOrder, updateOrder } from '../services/orderService';
 import { useCart } from '../context/CartContext';
-import { IonSearchbar, IonModal, IonSpinner, useIonToast, IonRippleEffect } from '@ionic/react';
+import AppHeader from '../components/common/AppHeader';
+import EmptyState from '../components/common/EmptyState';
 import './Cart.css';
 
 const Cart: React.FC = () => {
@@ -64,20 +58,17 @@ const Cart: React.FC = () => {
 
   useIonViewWillEnter(() => {
     if (editingOrderId && selectedClientId) {
-      // Pre-populate for Edit Mode
       setOrderType(contextOrderType || 2);
       fetchSelectedClient(selectedClientId);
     } else {
       setSelectedClient(null);
-      setOrderType(2); // Reset to General
+      setOrderType(2);
     }
   });
 
   useIonViewWillLeave(() => {
-    // Reset client details when leaving the page as per user request
     setSelectedClient(null);
     setSelectedClientId(null);
-    // Also clear edit mode if we leave the page to ensure fresh start next time
     setEditingOrderId(null);
   });
 
@@ -85,9 +76,7 @@ const Cart: React.FC = () => {
     try {
       const response = await getClientById(clientId);
       setSelectedClient(response.response);
-    } catch (error) {
-      console.error('Error fetching client details:', error);
-    }
+    } catch (error) { }
   };
 
   useEffect(() => {
@@ -114,12 +103,7 @@ const Cart: React.FC = () => {
       const response = await getClientList(1, 100);
       setClients(response.response.data);
     } catch (error) {
-      console.error('Error fetching clients:', error);
-      present({
-        message: 'Failed to load client list',
-        duration: 2000,
-        color: 'danger'
-      });
+      present({ message: 'Failed to load client list', duration: 2000, color: 'danger' });
     } finally {
       setLoadingClients(false);
     }
@@ -136,14 +120,9 @@ const Cart: React.FC = () => {
 
   const handleSelectClient = (client: ApiClient) => {
     setSelectedClient(client);
-    setSelectedClientId(client._id); // Update context too
+    setSelectedClientId(client._id);
     setIsClientModalOpen(false);
-    present({
-      message: `Selected client: ${client.name}`,
-      duration: 1500,
-      color: 'success',
-      position: 'bottom'
-    });
+    present({ message: `Selected client: ${client.name}`, duration: 1500, color: 'success' });
   };
 
   const handleViewOrders = () => {
@@ -152,7 +131,6 @@ const Cart: React.FC = () => {
   };
 
   const submitOrder = async () => {
-
     if (!selectedClient) return;
     setIsPlacingOrder(true);
     try {
@@ -166,15 +144,10 @@ const Cart: React.FC = () => {
         order_type: orderType
       };
 
-
       let result;
       if (editingOrderId) {
         result = await updateOrder(editingOrderId, orderData);
-        present({
-          message: 'Order updated successfully!',
-          duration: 2000,
-          color: 'success'
-        });
+        present({ message: 'Order updated successfully!', duration: 2000, color: 'success' });
       } else {
         result = await createOrder(orderData);
       }
@@ -186,12 +159,10 @@ const Cart: React.FC = () => {
       setSelectedClient(null);
       setShowSuccess(true);
 
-      // Auto redirect after animation
       setTimeout(() => {
         handleViewOrders();
       }, 3000);
     } catch (error) {
-      console.error('Error processing order:', error);
       present({
         message: `Failed to ${editingOrderId ? 'update' : 'place'} order. Please try again.`,
         duration: 3000,
@@ -202,20 +173,17 @@ const Cart: React.FC = () => {
     }
   };
 
+  const RightButtons = (
+    <IonButton>
+      <IonIcon icon={notificationsOutline} slot="icon-only" />
+    </IonButton>
+  );
+
   return (
     <IonPage>
-      <IonHeader className="ion-no-border">
-        <IonToolbar className="cart-header">
-          <IonTitle>Shopping Cart</IonTitle>
-          <IonButtons slot="end">
-            <IonButton>
-              <IonIcon icon={notificationsOutline} slot="icon-only" />
-            </IonButton>
-          </IonButtons>
-        </IonToolbar>
-      </IonHeader>
+      <AppHeader title="Shopping Cart" rightButtons={RightButtons} />
 
-      <IonContent className="cart-content-premium">
+      <IonContent className="page-content-premium cart-content-premium">
         {items.length > 0 ? (
           <>
             <div className="selected-client-section">
@@ -293,16 +261,13 @@ const Cart: React.FC = () => {
             </div>
           </>
         ) : (
-          <div className="empty-cart-premium">
-            <div className="empty-state-illust">
-              <IonIcon icon={cartOutline} />
-            </div>
-            <h3>Your cart is empty</h3>
-            <p>Looks like you haven't added anything yet.</p>
-            <IonButton mode="ios" className="shop-now-btn" routerLink="/app/products">
-              Start Shopping
-            </IonButton>
-          </div>
+          <EmptyState
+            icon={cartOutline}
+            title="Your cart is empty"
+            description="Looks like you haven't added anything yet."
+            actionText="Start Shopping"
+            onAction={() => history.push('/app/products')}
+          />
         )}
       </IonContent>
 
@@ -359,7 +324,7 @@ const Cart: React.FC = () => {
               onIonInput={(e) => setSearchTerm(e.detail.value!)}
               placeholder="Search clients..."
               mode="ios"
-              className="modal-search"
+              className="premium-searchbar"
             />
           </div>
 
@@ -434,3 +399,4 @@ const Cart: React.FC = () => {
 };
 
 export default Cart;
+

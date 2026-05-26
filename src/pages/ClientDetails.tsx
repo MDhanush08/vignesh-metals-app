@@ -1,10 +1,6 @@
 import {
   IonContent,
-  IonHeader,
   IonPage,
-  IonTitle,
-  IonToolbar,
-  IonButtons,
   IonIcon,
   IonButton,
   IonText,
@@ -17,15 +13,14 @@ import {
   locationOutline,
   callOutline,
   mailOutline,
-  arrowBack,
   createOutline,
-  businessOutline,
   shieldCheckmarkOutline,
-  calendarOutline
+  notificationsOutline
 } from 'ionicons/icons';
 import React, { useState } from 'react';
 import { useParams, useHistory } from 'react-router-dom';
 import { getClientById, ApiClient } from '../services/clientService';
+import AppHeader from '../components/common/AppHeader';
 import './ClientDetails.css';
 
 const ClientDetails: React.FC = () => {
@@ -46,46 +41,28 @@ const ClientDetails: React.FC = () => {
       const response = await getClientById(id);
       setClient(response.response);
     } catch (error) {
-      console.error('Error fetching client details:', error);
-      present({
-        message: 'Error loading client details.',
-        duration: 2000,
-        color: 'danger'
-      });
+      present({ message: 'Error loading client details.', duration: 2000, color: 'danger' });
     } finally {
       setLoading(false);
     }
   };
 
+  const RightButtons = (
+    <>
+      <IonButton onClick={() => history.push(`/app/clients-edit/${id}`)}>
+        <IonIcon icon={createOutline} slot="icon-only" />
+      </IonButton>
+      <IonButton>
+        <IonIcon icon={notificationsOutline} slot="icon-only" />
+      </IonButton>
+    </>
+  );
+
   return (
     <IonPage>
-      <IonHeader className="ion-no-border">
-        <IonToolbar className="client-details-header">
-          <IonButtons slot="start">
-            <IonButton onClick={() => {
-              if (document.activeElement instanceof HTMLElement) {
-                document.activeElement.blur();
-              }
-              history.goBack();
-            }}>
-              <IonIcon icon={arrowBack} slot="icon-only" />
-            </IonButton>
-          </IonButtons>
-          <IonTitle>Client Details</IonTitle>
-          <IonButtons slot="end">
-            <IonButton onClick={() => {
-              if (document.activeElement instanceof HTMLElement) {
-                document.activeElement.blur();
-              }
-              history.push(`/app/clients-edit/${id}`);
-            }}>
-              <IonIcon icon={createOutline} slot="icon-only" />
-            </IonButton>
-          </IonButtons>
-        </IonToolbar>
-      </IonHeader>
+      <AppHeader title="Client Details" showBackButton={true} rightButtons={RightButtons} />
 
-      <IonContent className="client-details-content">
+      <IonContent className="page-content-premium client-details-content">
         {loading ? (
           <div className="ion-text-center ion-padding">
             <IonSpinner name="crescent" color="primary" />
@@ -105,7 +82,7 @@ const ClientDetails: React.FC = () => {
             </div>
 
             <div className="details-group">
-              <h4 className="section-title">Contact Information</h4>
+              <h4 className="section-title-premium">Contact Information</h4>
               <div className="details-card-white">
                 <div className="info-item-row">
                   <div className="item-icon mail"><IonIcon icon={mailOutline} /></div>
@@ -125,7 +102,7 @@ const ClientDetails: React.FC = () => {
             </div>
 
             <div className="details-group">
-              <h4 className="section-title">Address Details</h4>
+              <h4 className="section-title-premium">Address Details</h4>
               <div className="details-card-white">
                 <div className="info-item-row">
                   <div className="item-icon location"><IonIcon icon={locationOutline} /></div>
@@ -139,32 +116,6 @@ const ClientDetails: React.FC = () => {
                 </div>
               </div>
             </div>
-
-            {/* <div className="details-group">
-              <h4 className="section-title">Registration Details</h4>
-              <div className="details-card-white">
-                <div className="info-item-row">
-                  <div className="item-icon registration"><IonIcon icon={businessOutline} /></div>
-                  <div className="item-content">
-                    <span className="item-label">GST Registration Type</span>
-                    <span className="item-value">
-                      {client.gst_registration_type === 1 ? 'Regular' :
-                        client.gst_registration_type === 2 ? 'Composite' :
-                          client.gst_registration_type === 3 ? 'Unregistered' : 'N/A'}
-                    </span>
-                  </div>
-                </div>
-                {client.gst_number && (
-                  <div className="info-item-row">
-                    <div className="item-icon registration"><IonIcon icon={shieldCheckmarkOutline} /></div>
-                    <div className="item-content">
-                      <span className="item-label">GST Number</span>
-                      <span className="item-value">{client.gst_number}</span>
-                    </div>
-                  </div>
-                )}
-              </div>
-            </div> */}
           </div>
         ) : (
           <div className="ion-padding ion-text-center">
@@ -177,3 +128,4 @@ const ClientDetails: React.FC = () => {
 };
 
 export default ClientDetails;
+
