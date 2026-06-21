@@ -148,15 +148,34 @@
   --padding-bottom: 14px;
   --padding-start: 0;
   --placeholder-color: #cbd5e1;
+  --placeholder-opacity: 1;
   --highlight-height: 0;
   --border-style: none;
   --border-width: 0;
   --border-color: transparent;
   --inner-border-width: 0;
+  --background: transparent;
+  --color: #1e293b;
   font-size: 16px;
   font-weight: 600;
   color: #1e293b;
   outline: none !important;
+}
+
+/* Fix for Webkit Autofill Background */
+/* Fix for Webkit Autofill Background */
+ion-input.login-input-field::part(native):-webkit-autofill,
+ion-input.login-input-field::part(native):-webkit-autofill:hover,
+ion-input.login-input-field::part(native):-webkit-autofill:focus,
+ion-input.login-input-field::part(native):-webkit-autofill:active,
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+input:-webkit-autofill:active {
+  -webkit-box-shadow: 0 0 0px 1000px #ffffff inset !important;
+  -webkit-text-fill-color: #1e293b !important;
+  transition: background-color 5000s ease-in-out 0s !important;
+  caret-color: #1e293b !important;
 }
 
 .password-toggle-btn {
