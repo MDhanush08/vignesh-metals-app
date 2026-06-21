@@ -155,14 +155,26 @@
   --border-color: transparent;
   --inner-border-width: 0;
   --background: transparent;
-  --color: #1e293b;
+  --color: #1e293b !important;
   font-size: 16px;
   font-weight: 600;
-  color: #1e293b;
+  color: #1e293b !important;
   outline: none !important;
 }
 
-/* Fix for Webkit Autofill Background */
+/* Force dark text color regardless of system dark mode or device styles */
+ion-input.login-input-field::part(native) {
+  color: #1e293b !important;
+  -webkit-text-fill-color: #1e293b !important;
+  opacity: 1 !important;
+}
+
+ion-input.login-input-field::part(native)::placeholder {
+  color: #cbd5e1 !important;
+  -webkit-text-fill-color: #cbd5e1 !important;
+  opacity: 1 !important;
+}
+
 /* Fix for Webkit Autofill Background */
 ion-input.login-input-field::part(native):-webkit-autofill,
 ion-input.login-input-field::part(native):-webkit-autofill:hover,
