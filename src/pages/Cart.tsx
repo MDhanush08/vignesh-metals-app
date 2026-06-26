@@ -173,15 +173,9 @@ const Cart: React.FC = () => {
     }
   };
 
-  const RightButtons = (
-    <IonButton>
-      <IonIcon icon={notificationsOutline} slot="icon-only" />
-    </IonButton>
-  );
-
   return (
     <IonPage>
-      <AppHeader title="Shopping Cart" rightButtons={RightButtons} />
+      <AppHeader title="Shopping Cart" />
 
       <IonContent className="page-content-premium cart-content-premium">
         {items.length > 0 ? (

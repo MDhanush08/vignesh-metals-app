@@ -113,9 +113,6 @@ const OrderHistory: React.FC = () => {
       <IonButton onClick={handleDownloadAll} className="global-download-btn">
         <IonIcon icon={downloadOutline} slot="icon-only" />
       </IonButton>
-      <IonButton>
-        <IonIcon icon={notificationsOutline} slot="icon-only" />
-      </IonButton>
     </>
   );
 

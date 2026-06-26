@@ -160,14 +160,14 @@
 }
 
 .profile-details-list {
-  padding: 12px 16px 8px 16px;
+  padding: 4px 12px 4px 12px;
 }
 
 .profile-details-list h3 {
   font-size: 13px;
   font-weight: 700;
   color: #64748b;
-  margin-bottom: 8px;
+  margin-bottom: 4px;
   margin-left: 4px;
   text-transform: capitalize;
   letter-spacing: 0.5px;
@@ -181,7 +181,7 @@
 }
 
 .detail-item {
-  padding: 14px 16px;
+  padding: 8px 12px;
   display: flex;
   align-items: center;
   gap: 12px;

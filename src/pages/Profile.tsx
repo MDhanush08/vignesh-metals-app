@@ -119,15 +119,9 @@ const Profile: React.FC = () => {
     });
   };
 
-  const RightButtons = (
-    <IonButton>
-      <IonIcon icon={notificationsOutline} slot="icon-only" />
-    </IonButton>
-  );
-
   return (
     <IonPage>
-      <AppHeader title="My Profile" rightButtons={RightButtons} />
+      <AppHeader title="My Profile" />
 
       <IonContent className="page-content-premium profile-content">
         <div className="profile-hero">

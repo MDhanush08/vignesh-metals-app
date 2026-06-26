@@ -93,9 +93,6 @@ const Clients: React.FC = () => {
       <IonButton fill="clear" routerLink="/app/clients-add">
         <IonIcon icon={addOutline} slot="icon-only" />
       </IonButton>
-      <IonButton>
-        <IonIcon icon={notificationsOutline} slot="icon-only" />
-      </IonButton>
     </>
   );
 

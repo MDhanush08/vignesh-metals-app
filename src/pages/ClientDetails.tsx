@@ -52,9 +52,6 @@ const ClientDetails: React.FC = () => {
       <IonButton onClick={() => history.push(`/app/clients-edit/${id}`)}>
         <IonIcon icon={createOutline} slot="icon-only" />
       </IonButton>
-      <IonButton>
-        <IonIcon icon={notificationsOutline} slot="icon-only" />
-      </IonButton>
     </>
   );
 

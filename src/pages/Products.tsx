@@ -159,9 +159,6 @@ const Products: React.FC = () => {
       <IonButton onClick={handleDownloadCatalog}>
         <IonIcon icon={downloadOutline} slot="icon-only" />
       </IonButton>
-      <IonButton>
-        <IonIcon icon={notificationsOutline} slot="icon-only" />
-      </IonButton>
     </>
   );
 

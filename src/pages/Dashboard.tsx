@@ -33,18 +33,9 @@ const Dashboard: React.FC = () => {
     { id: 'ORD-003', shopName: 'Modern Build Solutions', date: '2024-03-03', location: 'Coimbatore, TN', type: 'General', status: 'Delivered' },
   ];
 
-  const RightButtons = (
-    <div className="notification-btn">
-      <IonButton>
-        <IonIcon icon={notificationsOutline} slot="icon-only" />
-      </IonButton>
-      <span className="dot"></span>
-    </div>
-  );
-
   return (
     <IonPage>
-      <AppHeader title="Dashboard" rightButtons={RightButtons} />
+      <AppHeader title="Dashboard" />
 
       <IonContent className="page-content-premium ion-padding dashboard-content">
         <div className="sticky-header-container">

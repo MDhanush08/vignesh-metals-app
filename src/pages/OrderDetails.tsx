@@ -130,18 +130,11 @@ const OrderDetails: React.FC = () => {
     history.push('/app/cart');
   };
 
-  const RightButtons = (
-    <IonButton>
-      <IonIcon icon={notificationsOutline} slot="icon-only" />
-    </IonButton>
-  );
-
   return (
     <IonPage>
       <AppHeader
         title={`Order #${order?.id || '...'}`}
         showBackButton={true}
-        rightButtons={RightButtons}
       />
 
       <IonContent className="page-content-premium">
