@@ -261,22 +261,21 @@ const Products: React.FC = () => {
             </div>
 
             <IonContent className="ion-padding-horizontal">
-              <IonList className="category-select-list" lines="none">
+              <div className="category-select-list">
                 {categories.map(cat => (
-                  <IonItem
+                  <div
                     key={cat}
                     className={`filter-item ${selectedCategories.includes(cat) ? 'selected' : ''}`}
                     onClick={(e) => { e.preventDefault(); toggleCategory(cat); }}
                   >
-                    <IonLabel className="filter-label-text">{cat}</IonLabel>
+                    <span className="filter-label-text">{cat}</span>
                     <IonCheckbox
-                      slot="end"
                       checked={selectedCategories.includes(cat)}
                       style={{ pointerEvents: 'none' }}
                     />
-                  </IonItem>
+                  </div>
                 ))}
-              </IonList>
+              </div>
             </IonContent>
 
             <div className="sheet-footer">

@@ -221,6 +221,11 @@
   background: #ffffff;
 }
 
+.sheet-container ion-content {
+  --background: #ffffff;
+  background: #ffffff;
+}
+
 .sheet-header {
   padding: 12px 20px 0 20px;
   background: #ffffff;
@@ -266,28 +271,34 @@
 }
 
 .category-select-list {
-  background: transparent;
+  background: #ffffff;
+  --background: #ffffff;
   padding: 16px 12px;
 }
 
 .filter-item {
-  --background: #f8fafc;
-  --border-radius: 14px;
+  background: #f8fafc !important;
+  border-radius: 14px !important;
+  overflow: hidden !important;
   margin-bottom: 12px;
-  --padding-start: 16px;
-  --min-height: 56px;
+  padding: 0 16px;
+  min-height: 56px;
   transition: all 0.2s ease;
   border: 1.5px solid #f1f5f9;
-  --inner-padding-end: 16px;
-  --box-shadow: none;
-  background: transparent !important;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  cursor: pointer;
+}
+
+.filter-item:active {
+  transform: scale(0.98);
 }
 
 .filter-item.selected {
-  --background: #eff6ff;
-  --color: var(--ion-color-primary);
-  border-color: var(--ion-color-primary);
-  border-radius: 20px;
+  background: #eff6ff !important;
+  color: var(--ion-color-primary) !important;
+  border-color: var(--ion-color-primary) !important;
 }
 
 .filter-label-text {
