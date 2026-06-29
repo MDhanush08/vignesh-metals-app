@@ -186,6 +186,10 @@
   align-items: center;
   gap: 12px;
   border-bottom: 1px solid #f1f5f9;
+  height: 60px;
+  position: relative;
+  overflow: hidden;
+  cursor: pointer;
 }
 
 .detail-item:last-child {
@@ -293,13 +297,13 @@
 }
 
 .logout-alert .alert-title {
-  color: #1e293b;
+  color: #1e293b !important;
   font-weight: 800;
   font-size: 20px;
 }
 
 .logout-alert .alert-message {
-  color: #64748b;
+  color: #64748b !important;
   font-size: 15px;
 }
 

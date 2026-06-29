@@ -66,12 +66,13 @@
 }
 
 .custom-searchbar {
-  --background: #ffffff;
-  --color: #1e293b;
-  --placeholder-color: #94a3b8;
-  --border-radius: 14px;
-  --box-shadow: 0 4px 15px rgba(0, 0, 0, 0.06);
-  --icon-color: var(--ion-color-primary);
+  --background: #ffffff !important;
+  --color: #1e293b !important;
+  --placeholder-color: #94a3b8 !important;
+  --border-radius: 14px !important;
+  --box-shadow: 0 4px 15px rgba(0, 0, 0, 0.06) !important;
+  --icon-color: var(--ion-color-primary) !important;
+  --clear-button-color: #94a3b8 !important;
   padding: 0;
   height: 56px;
   font-size: 16px;

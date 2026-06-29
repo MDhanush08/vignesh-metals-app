@@ -184,6 +184,16 @@ const Profile: React.FC = () => {
                 <span className="value">{user?.email || 'N/A'}</span>
               </div>
             </div>
+            <div className="detail-item ion-activatable" onClick={() => history.push('/app/clients')}>
+              <IonRippleEffect />
+              <div className="detail-icon">
+                <IonIcon icon={peopleOutline} />
+              </div>
+              <div className="detail-info" style={{ flex: 1, display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+                <span className="value" style={{ fontSize: '15px' }}>Our Clients</span>
+                <IonIcon icon={chevronForwardOutline} style={{ color: '#cbd5e1', fontSize: '18px' }} />
+              </div>
+            </div>
           </div>
         </div>
 

@@ -31,12 +31,13 @@
   gap: 10px;
 }
 
-.review-search {
-  --background: #f8fafc;
-  --color: #1e293b;
-  --placeholder-color: #94a3b8;
-  --icon-color: var(--ion-color-primary);
-  --border-radius: 12px;
+.premium-searchbar {
+  --background: #f8fafc !important;
+  --color: #1e293b !important;
+  --placeholder-color: #94a3b8 !important;
+  --icon-color: var(--ion-color-primary) !important;
+  --clear-button-color: #94a3b8 !important;
+  --border-radius: 12px !important;
   padding: 0;
   flex: 1;
 }
@@ -310,6 +311,19 @@
 .no-orders-found {
   padding: 60px 40px;
   text-align: center;
+}
+
+.no-orders-found h3 {
+  font-size: 20px;
+  font-weight: 800;
+  color: #1e293b !important;
+  margin-bottom: 8px;
+}
+
+.no-orders-found p {
+  font-size: 14px;
+  color: #64748b !important;
+  margin-bottom: 30px;
 }
 
 .empty-icon {
