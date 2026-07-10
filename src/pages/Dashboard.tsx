@@ -21,17 +21,64 @@ import {
   chevronForwardOutline,
   searchOutline
 } from 'ionicons/icons';
-import React from 'react';
+import React, { useState, useEffect } from 'react';
+import { useHistory } from 'react-router-dom';
 import AppHeader from '../components/common/AppHeader';
+import { getOrders, ApiOrder } from '../services/orderService';
+import { getClientList, ApiClient } from '../services/clientService';
+import { IonSpinner, useIonToast } from '@ionic/react';
 import './Dashboard.css';
 
 const Dashboard: React.FC = () => {
-  // Mock data for Dashboard
-  const activeOrders = [
-    { id: 'ORD-001', shopName: 'Bala Metals & Steels', date: '2024-03-05', location: 'Chennai, TN', type: 'Emergency', status: 'In Progress' },
-    { id: 'ORD-002', shopName: 'Sri Vinayaga Hardware', date: '2024-03-04', location: 'Madurai, TN', type: 'General', status: 'Shipped' },
-    { id: 'ORD-003', shopName: 'Modern Build Solutions', date: '2024-03-03', location: 'Coimbatore, TN', type: 'General', status: 'Delivered' },
-  ];
+  const history = useHistory();
+  const [activeOrders, setActiveOrders] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [present] = useIonToast();
+
+  useEffect(() => {
+    fetchOrders();
+  }, []);
+
+  const fetchOrders = async () => {
+    setLoading(true);
+    try {
+      const clientsResponse = await getClientList(1, 200);
+      const cMap: Record<string, any> = {};
+      clientsResponse.response.data.forEach((c: ApiClient) => {
+        cMap[c._id] = c;
+      });
+
+      const result = await getOrders(1, 5); // Fetch top 5 recent orders for dashboard
+
+      const mappedOrders = result.response.data.map((o: ApiOrder) => {
+        const clientInfo = typeof o.client === 'object' ? o.client : (typeof o.client_id === 'object' ? o.client_id : cMap[o.client_id as string]);
+        let shopName = 'CLIENT';
+        let location = 'Unknown Location';
+
+        if (clientInfo) {
+          shopName = clientInfo.name || shopName;
+          location = [clientInfo.city, clientInfo.state].filter(Boolean).join(', ') || location;
+        }
+
+        return {
+          id: o.order_number || o._id.substring(0, 8),
+          realId: o._id,
+          shopName,
+          location,
+          type: o.order_type === 1 ? 'Emergency' : 'General',
+          date: new Date(o.approve_at || Date.now()).toLocaleDateString(),
+          status: o.status === 1 ? 'Pending' : o.status === 2 ? 'Approved' : 'Delivered'
+        };
+      });
+
+      setActiveOrders(mappedOrders);
+    } catch (error) {
+      present({ message: 'Failed to load dashboard orders.', duration: 2000, color: 'danger' });
+    } finally {
+      setLoading(false);
+    }
+  };
+
 
   return (
     <IonPage>
@@ -57,15 +104,25 @@ const Dashboard: React.FC = () => {
 
           <div className="section-header">
             <h3>Active Orders</h3>
-            <IonButton fill="clear" color="primary" className="view-all-btn">
+            <IonButton fill="clear" color="primary" className="view-all-btn" onClick={() => history.push('/app/orders')}>
               View All
             </IonButton>
           </div>
         </div>
 
         <div className="orders-list">
-          {activeOrders.map((order) => (
-            <IonCard key={order.id} className="order-card">
+          {loading ? (
+            <div className="ion-text-center ion-padding">
+              <IonSpinner name="crescent" color="primary" />
+              <p>Loading orders...</p>
+            </div>
+          ) : activeOrders.length > 0 ? (
+            activeOrders.map((order) => (
+              <IonCard 
+                key={order.realId} 
+                className="order-card ion-activatable" 
+                onClick={() => history.push(`/app/orders/${order.realId}`)}
+              >
               <div className={`status-accent ${order.type.toLowerCase()}`}></div>
               <IonCardHeader>
                 <div className="card-top-row">
@@ -103,7 +160,12 @@ const Dashboard: React.FC = () => {
                 </IonGrid>
               </IonCardContent>
             </IonCard>
-          ))}
+            ))
+          ) : (
+            <div className="ion-text-center ion-padding">
+              <p>No recent orders found.</p>
+            </div>
+          )}
         </div>
       </IonContent>
     </IonPage>

@@ -137,7 +137,7 @@ const Cart: React.FC = () => {
       const orderData = {
         client_id: selectedClient._id,
         items_list: items.map(item => ({
-          product_id: item.sizeId || item.id,
+          product_id:  item.id,
           qty: item.quantity,
           size: item.size || "Standard"
         })),
