@@ -13,7 +13,9 @@ import {
   IonLabel,
   IonSpinner,
   IonCheckbox,
-  useIonViewWillEnter
+  useIonViewWillEnter,
+  IonInfiniteScroll,
+  IonInfiniteScrollContent
 } from '@ionic/react';
 import {
   notificationsOutline,
@@ -35,6 +37,8 @@ const Products: React.FC = () => {
   const [products, setProducts] = useState<Product[]>([]);
   const [categories, setCategories] = useState<string[]>(['All']);
   const [loading, setLoading] = useState(true);
+  const [page, setPage] = useState(1);
+  const [hasMore, setHasMore] = useState(true);
   const [searchText, setSearchText] = useState('');
   const [selectedCategories, setSelectedCategories] = useState<string[]>(['All']);
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
@@ -42,6 +46,7 @@ const Products: React.FC = () => {
   const [isProductModalOpen, setIsProductModalOpen] = useState(false);
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const modal = useRef<HTMLIonModalElement>(null);
+  const categoryMapRef = useRef<Record<string, string>>({});
   const [present] = useIonToast();
   const { addItem } = useCart();
 
@@ -51,25 +56,33 @@ const Products: React.FC = () => {
   });
 
   useEffect(() => {
-    loadData();
+    loadData(1, true);
   }, []);
 
-  const loadData = async () => {
-    setLoading(true);
+  const loadData = async (pageNumber: number = 1, isReset: boolean = false) => {
+    if (isReset) {
+      setLoading(true);
+      setPage(1);
+      setHasMore(true);
+    }
     try {
-      let categoryMap: Record<string, string> = {};
-      try {
-        const catResponse = await getCategories();
-        const apiCats = catResponse.response.data;
-        apiCats.forEach(cat => {
-          categoryMap[cat._id] = cat.name;
-        });
-        setCategories(['All', ...apiCats.map(c => c.name)]);
-      } catch (catError) {
-        setCategories(['All', 'Metal Works']);
+      let currentMap = { ...categoryMapRef.current };
+      if (Object.keys(currentMap).length === 0) {
+        try {
+          const catResponse = await getCategories();
+          const apiCats = catResponse.response.data;
+          apiCats.forEach((cat: any) => {
+            currentMap[cat._id] = cat.name;
+          });
+          categoryMapRef.current = currentMap;
+          setCategories(['All', ...apiCats.map((c: any) => c.name)]);
+        } catch (catError) {
+          setCategories(['All', 'Metal Works']);
+        }
       }
 
-      const response = await getProducts(1, 100);
+      const limit = 20;
+      const response = await getProducts(pageNumber, limit);
       const apiProducts = response.response.data;
 
       const mappedProducts: Product[] = apiProducts.map((p: ApiProduct) => ({
@@ -77,7 +90,7 @@ const Products: React.FC = () => {
         name: p.name,
         basePrice: p.size[0]?.price || 0,
         image: p.thumbnail,
-        category: categoryMap[p.category] || 'Metal Works',
+        category: currentMap[p.category] || 'Metal Works',
         packSize: p.item_code,
         description: p.description,
         sizeOptions: p.size.map(s => ({
@@ -90,12 +103,34 @@ const Products: React.FC = () => {
         }))
       }));
 
-      setProducts(mappedProducts);
+      if (isReset) {
+        setProducts(mappedProducts);
+      } else {
+        setProducts(prev => {
+          const filteredNew = mappedProducts.filter(np => !prev.some(pp => pp.id === np.id));
+          return [...prev, ...filteredNew];
+        });
+      }
+
+      if (apiProducts.length < limit) {
+        setHasMore(false);
+      }
     } catch (error) {
       present({ message: 'Failed to load products.', duration: 3000, color: 'danger' });
     } finally {
-      setLoading(false);
+      if (isReset) setLoading(false);
     }
+  };
+
+  const loadMoreProducts = async (e: any) => {
+    if (!hasMore) {
+      e.target.complete();
+      return;
+    }
+    const nextPage = page + 1;
+    setPage(nextPage);
+    await loadData(nextPage, false);
+    e.target.complete();
   };
 
   const filteredProducts = products.filter(p => {
@@ -216,6 +251,13 @@ const Products: React.FC = () => {
             </div>
           )}
         </div>
+
+        <IonInfiniteScroll
+          onIonInfinite={loadMoreProducts}
+          disabled={!hasMore}
+        >
+          <IonInfiniteScrollContent loadingSpinner="bubbles" loadingText="Loading more products..."></IonInfiniteScrollContent>
+        </IonInfiniteScroll>
 
         {!loading && filteredProducts.length === 0 && (
           <EmptyState

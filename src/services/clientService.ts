@@ -27,7 +27,7 @@ export const getClients = async (page: number = 1, limit: number = 100): Promise
 };
 
 export const getClientList = async (page: number = 1, limit: number = 200): Promise<PaginatedResponse<ApiClient>> => {
-  return apiRequest(`order/client`, { method: 'GET' });
+  return apiRequest(`order/client?limit=${limit}&page=${page}`, { method: 'GET' });
 };
 
 export const getClientById = async (id: string): Promise<ApiResponse<ApiClient>> => {

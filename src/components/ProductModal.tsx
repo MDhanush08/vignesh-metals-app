@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { IonModal, IonButton, IonIcon, IonRippleEffect } from '@ionic/react';
-import { closeOutline, addOutline, removeOutline, checkmarkCircleOutline } from 'ionicons/icons';
+import { closeOutline, addOutline, removeOutline, checkmarkCircleOutline, imageOutline } from 'ionicons/icons';
 import { Product, SizeOption } from '../data/products';
 import './ProductModal.css';
 
@@ -16,9 +16,12 @@ const ProductModal: React.FC<ProductModalProps> = ({ product, initialQuantity = 
   const [quantity, setQuantity] = useState(initialQuantity);
   const [selectedSize, setSelectedSize] = useState<SizeOption | null>(null);
 
+  const [imgError, setImgError] = useState(false);
+
   useEffect(() => {
     if (product) {
       setQuantity(initialQuantity);
+      setImgError(false);
       if (product.sizeOptions && product.sizeOptions.length > 0) {
         setSelectedSize(product.sizeOptions[0]);
       } else {
@@ -52,9 +55,19 @@ const ProductModal: React.FC<ProductModalProps> = ({ product, initialQuantity = 
           </IonButton>
         </div>
 
-        {/* Visual Hero Section */}
         <div className="modal-hero">
-          <img src={product.image} alt={product.name} className="hero-img" />
+          {(product.image && !imgError) ? (
+            <img 
+              src={product.image} 
+              alt={product.name} 
+              className="hero-img" 
+              onError={() => setImgError(true)}
+            />
+          ) : (
+            <div className="fallback-hero-image">
+              <IonIcon icon={imageOutline} className="fallback-hero-icon" />
+            </div>
+          )}
         </div>
 
         {/* Scrollable Context Area */}

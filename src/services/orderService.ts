@@ -50,6 +50,35 @@ export const getOrders = async (page: number = 1, limit: number = 10): Promise<O
   return apiRequest(`order/?limit=${limit}&page=${page}`, { method: 'GET' });
 };
 
+export const getHistoryListWithFilter = async (
+  status: string,
+  orderType: string,
+  search: string,
+  page: number = 1,
+  limit: number = 50
+): Promise<OrdersResponse> => {
+  const params = new URLSearchParams();
+
+  if (orderType && orderType !== 'All') {
+    const typeVal = orderType === 'Emergency' ? '1' : '2';
+    params.append('order_type', typeVal);
+  }
+
+  if (status && status !== 'All') {
+    const statusVal = status === 'Pending' ? '1' : status === 'Approved' ? '2' : '3';
+    params.append('status', statusVal);
+  }
+
+  if (search) {
+    params.append('q', search);
+  }
+
+  params.append('limit', limit.toString());
+  params.append('page', page.toString());
+
+  return apiRequest(`order/?${params.toString()}`, { method: 'GET' });
+};
+
 export const getOrderById = async (id: string): Promise<SingleOrderResponse> => {
   return apiRequest(`order/${id}`, { method: 'GET' });
 };

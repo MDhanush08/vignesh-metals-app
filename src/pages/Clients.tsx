@@ -8,7 +8,9 @@ import {
   useIonToast,
   IonFab,
   IonFabButton,
-  useIonViewWillEnter
+  useIonViewWillEnter,
+  IonInfiniteScroll,
+  IonInfiniteScrollContent
 } from '@ionic/react';
 import {
   personOutline,
@@ -32,22 +34,53 @@ const Clients: React.FC = () => {
   const [searchText, setSearchText] = useState('');
   const [clients, setClients] = useState<ApiClient[]>([]);
   const [loading, setLoading] = useState(true);
+  const [page, setPage] = useState(1);
+  const [hasMore, setHasMore] = useState(true);
   const [present] = useIonToast();
 
   useIonViewWillEnter(() => {
-    fetchClients();
+    fetchClients(1, true);
   });
 
-  const fetchClients = async () => {
-    setLoading(true);
+  const fetchClients = async (pageNumber: number = 1, isReset: boolean = false) => {
+    if (isReset) {
+      setLoading(true);
+      setPage(1);
+      setHasMore(true);
+    }
     try {
-      const response = await getClients(1, 100);
-      setClients(response.response.data);
+      const limit = 20;
+      const response = await getClients(pageNumber, limit);
+      const newClients = response.response?.data || [];
+      
+      if (isReset) {
+        setClients(newClients);
+      } else {
+        setClients(prev => {
+          const filteredNew = newClients.filter(nc => !prev.some(pc => pc._id === nc._id));
+          return [...prev, ...filteredNew];
+        });
+      }
+
+      if (newClients.length < limit) {
+        setHasMore(false);
+      }
     } catch (error) {
       present({ message: 'Failed to load clients.', duration: 2000, color: 'danger' });
     } finally {
-      setLoading(false);
+      if (isReset) setLoading(false);
     }
+  };
+
+  const loadMoreClients = async (e: any) => {
+    if (!hasMore) {
+      e.target.complete();
+      return;
+    }
+    const nextPage = page + 1;
+    setPage(nextPage);
+    await fetchClients(nextPage, false);
+    e.target.complete();
   };
 
   const handleDownloadClients = async () => {
@@ -166,6 +199,13 @@ const Clients: React.FC = () => {
             />
           )}
         </div>
+
+        <IonInfiniteScroll
+          onIonInfinite={loadMoreClients}
+          disabled={!hasMore}
+        >
+          <IonInfiniteScrollContent loadingSpinner="bubbles" loadingText="Loading more clients..."></IonInfiniteScrollContent>
+        </IonInfiniteScroll>
 
         <IonFab vertical="bottom" horizontal="end" slot="fixed">
           <IonFabButton routerLink="/app/clients-add" className="custom-fab">

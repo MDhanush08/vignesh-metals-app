@@ -48,11 +48,11 @@ const App: React.FC = () => (
       <IonReactRouter>
         <IonRouterOutlet>
           <Route exact path="/login">
-            {authService.isAuthenticated() ? <Redirect to="/app/dashboard" /> : <Login />}
+            {authService.isAuthenticated() ? <Redirect to="/app/products" /> : <Login />}
           </Route>
           <PrivateRoute path="/app" component={MainTabs} />
           <Route exact path="/">
-            <Redirect to="/app/dashboard" />
+            <Redirect to="/app/products" />
           </Route>
         </IonRouterOutlet>
       </IonReactRouter>

@@ -29,6 +29,7 @@ import React, { useState, useEffect } from 'react';
 import { useHistory } from 'react-router-dom';
 import { authService } from '../services/authService';
 import { getClients } from '../services/clientService';
+import { getHistoryListWithFilter } from '../services/orderService';
 import AppHeader from '../components/common/AppHeader';
 import './Profile.css';
 
@@ -38,6 +39,7 @@ const Profile: React.FC = () => {
   const [present] = useIonToast();
   const user = authService.getUser();
   const [clientCount, setClientCount] = useState<number | null>(null);
+  const [orderCount, setOrderCount] = useState<number | null>(null);
 
   // Change Password Modal State
   const [showChangePwd, setShowChangePwd] = useState(false);
@@ -51,13 +53,18 @@ const Profile: React.FC = () => {
   const [pwdErrors, setPwdErrors] = useState<{ old?: string; new?: string; confirm?: string }>({});
 
   useEffect(() => {
-    fetchClientCount();
+    fetchCounts();
   }, []);
 
-  const fetchClientCount = async () => {
+  const fetchCounts = async () => {
     try {
-      const response = await getClients(1, 1);
-      setClientCount(response.response.total);
+      const clientRes = await getClients(1, 1);
+      setClientCount(clientRes.response.total);
+    } catch (error) { }
+
+    try {
+      const orderRes = await getHistoryListWithFilter('All', 'All', '', 1, 1);
+      setOrderCount(orderRes.response?.total || 0);
     } catch (error) { }
   };
 
@@ -140,12 +147,15 @@ const Profile: React.FC = () => {
         </div>
 
         <div className="stats-container">
-          <div className="stat-card">
+          <div className="stat-card ion-activatable" onClick={() => history.push('/app/orders')}>
+            <IonRippleEffect />
             <div className="stat-icon orders">
               <IonIcon icon={cartOutline} />
             </div>
             <div className="stat-info">
-              <span className="stat-value">148</span>
+              <span className="stat-value">
+                {orderCount !== null ? orderCount : <IonSpinner name="dots" />}
+              </span>
               <span className="stat-label">Total Orders</span>
             </div>
           </div>

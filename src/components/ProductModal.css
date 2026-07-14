@@ -434,3 +434,17 @@
     height: 40px;
   }
 }
+
+.fallback-hero-image {
+  width: 100%;
+  height: 150px;
+  background-color: #f3f4f6;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.fallback-hero-icon {
+  font-size: 80px;
+  color: #d1d5db;
+}

@@ -66,8 +66,8 @@ const OrderDetails: React.FC = () => {
         phone: `+${data.country_code} ${data.phone}`,
         expectedDate: data.approve_at ? new Date(data.approve_at).toLocaleDateString() : 'TBD',
         items: (data.items_list || []).map((item: any) => ({
-          name: item.name || 'Product',
-          qty: `${item.quantity} Units`,
+          name: item.product_name || item.name || 'Product',
+          qty: item.qty || item.quantity || 1,
           size: item.size || 'Standard'
         }))
       };
@@ -115,9 +115,9 @@ const OrderDetails: React.FC = () => {
 
     const cartItems = (rawOrder.items_list || []).map((item: any) => ({
       id: item.product_id,
-      name: item.name || 'Product',
+      name: item.product_name || item.name || 'Product',
       category: 'General',
-      quantity: item.quantity,
+      quantity: item.qty || item.quantity || 1,
       image: 'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?auto=format&fit=crop&q=80&w=200',
       size: item.size || 'Small',
       sizeId: item.size_id || item.size
@@ -207,13 +207,16 @@ const OrderDetails: React.FC = () => {
                 </div>
               </div>
 
-              <div className="items-table">
+              <div className="items-list-container">
                 {order.items.length > 0 ? (
                   order.items.map((item: any, idx: number) => (
-                    <div key={idx} className="table-item-row">
-                      <div className="item-details">
-                        <p className="item-name-qty">{item.qty} {item.name}</p>
-                        <p className="item-spec">Size: {item.size}</p>
+                    <div key={idx} className="normal-item-row">
+                      <div className="item-main-info">
+                        <span className="item-qty-text">{item.qty} ×</span>
+                        <div className="item-name-group">
+                          <p className="item-name-text">{item.name}</p>
+                          <p className="item-size-text">Size: {item.size}</p>
+                        </div>
                       </div>
                     </div>
                   ))

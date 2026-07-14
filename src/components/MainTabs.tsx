@@ -10,14 +10,13 @@ import {
   useIonRouter
 } from '@ionic/react';
 import {
-  homeOutline,
+  peopleOutline,
   gridOutline,
   cartOutline,
   bagHandleOutline,
   personOutline
 } from 'ionicons/icons';
 
-import Dashboard from '../pages/Dashboard';
 import Products from '../pages/Products';
 import Cart from '../pages/Cart';
 import OrderHistory from '../pages/OrderHistory';
@@ -37,8 +36,8 @@ const MainTabs: React.FC = () => {
     <IonTabs onIonTabsWillChange={(e) => {
       const tab = e.detail.tab;
       const pathMap: Record<string, string> = {
-        'dashboard': '/app/dashboard',
         'products': '/app/products',
+        'clients': '/app/clients',
         'cart': '/app/cart',
         'orders': '/app/orders',
         'profile': '/app/profile'
@@ -51,9 +50,6 @@ const MainTabs: React.FC = () => {
       }
     }}>
       <IonRouterOutlet>
-        <Route exact path="/app/dashboard">
-          <Dashboard />
-        </Route>
         <Route exact path="/app/products">
           <Products />
         </Route>
@@ -82,22 +78,22 @@ const MainTabs: React.FC = () => {
           <Profile />
         </Route>
         <Route exact path="/app">
-          <Redirect to="/app/dashboard" />
+          <Redirect to="/app/products" />
         </Route>
       </IonRouterOutlet>
 
       <IonTabBar slot="bottom" className="custom-tab-bar">
-        <IonTabButton tab="dashboard" href="/app/dashboard">
-          <div className="tab-icon-wrapper">
-            <IonIcon icon={homeOutline} />
-            <IonLabel>Dashboard</IonLabel>
-          </div>
-        </IonTabButton>
-
         <IonTabButton tab="products" href="/app/products">
           <div className="tab-icon-wrapper">
             <IonIcon icon={gridOutline} />
-            <IonLabel>Order</IonLabel>
+            <IonLabel>Products</IonLabel>
+          </div>
+        </IonTabButton>
+
+        <IonTabButton tab="clients" href="/app/clients">
+          <div className="tab-icon-wrapper">
+            <IonIcon icon={peopleOutline} />
+            <IonLabel>Clients</IonLabel>
           </div>
         </IonTabButton>
 

@@ -55,8 +55,8 @@ const Login: React.FC = () => {
         position: 'top'
       });
 
-      // Navigate to dashboard
-      history.push('/app/dashboard');
+      // Navigate to products
+      history.push('/app/products');
     } catch (error: any) {
       await dismissLoading();
       presentToast({

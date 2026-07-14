@@ -6,7 +6,9 @@ import {
   IonSearchbar,
   IonSpinner,
   useIonToast,
-  useIonViewWillEnter
+  useIonViewWillEnter,
+  IonInfiniteScroll,
+  IonInfiniteScrollContent
 } from '@ionic/react';
 import {
   notificationsOutline,
@@ -16,9 +18,9 @@ import {
   cubeOutline,
   downloadOutline
 } from 'ionicons/icons';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useHistory } from 'react-router-dom';
-import { getOrders, ApiOrder, getTotalOrderDownloadUrl } from '../services/orderService';
+import { getHistoryListWithFilter, ApiOrder, getTotalOrderDownloadUrl } from '../services/orderService';
 import { getClientList, ApiClient } from '../services/clientService';
 import AppHeader from '../components/common/AppHeader';
 import './OrderHistory.css';
@@ -31,6 +33,8 @@ const OrderHistory: React.FC = () => {
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [orders, setOrders] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [page, setPage] = useState(1);
+  const [hasMore, setHasMore] = useState(true);
   const [present] = useIonToast();
 
   const statuses = ['All', 'Pending', 'Approved', 'Delivered'];
@@ -40,11 +44,19 @@ const OrderHistory: React.FC = () => {
     setSearchText('');
     setStatusFilter('All');
     setTypeFilter('All');
-    fetchOrders();
   });
 
-  const fetchOrders = async () => {
-    setLoading(true);
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setPage(1);
+      setHasMore(true);
+      fetchOrders(1, true);
+    }, 400); // 400ms debounce
+    return () => clearTimeout(timer);
+  }, [searchText, statusFilter, typeFilter]);
+
+  const fetchOrders = async (pageNumber: number = 1, isReset: boolean = false) => {
+    if (isReset) setLoading(true);
     try {
       const clientsResponse = await getClientList(1, 200);
       const cMap: Record<string, string> = {};
@@ -52,32 +64,49 @@ const OrderHistory: React.FC = () => {
         cMap[c._id] = c.name;
       });
 
-      const result = await getOrders(1, 50);
+      const limit = 20;
+      const result = await getHistoryListWithFilter(statusFilter, typeFilter, searchText, pageNumber, limit);
 
-      const mappedOrders = result.response.data.map((o: ApiOrder) => ({
+      const mappedOrders = (result.response?.data || []).map((o: ApiOrder) => ({
         id: o.order_number || o._id.substring(0, 8),
         realId: o._id,
         shopName: (o.client_id as any)?.name || cMap[o.client_id as any] || 'CLIENT',
         type: o.order_type === 1 ? 'Emergency' : 'General',
-        date: new Date(o.approve_at || Date.now()).toLocaleDateString(),
+        date: new Date(o.approve_at || o.created_at || Date.now()).toLocaleDateString(),
         status: o.status === 1 ? 'Pending' : o.status === 2 ? 'Approved' : 'Delivered'
       }));
 
-      setOrders(mappedOrders);
+      if (isReset) {
+        setOrders(mappedOrders);
+      } else {
+        setOrders(prev => {
+          const newOrders = mappedOrders.filter(mo => !prev.some(po => po.realId === mo.realId));
+          return [...prev, ...newOrders];
+        });
+      }
+
+      if (mappedOrders.length < limit) {
+        setHasMore(false);
+      }
     } catch (error) {
       present({ message: 'Failed to load orders.', duration: 2000, color: 'danger' });
     } finally {
-      setLoading(false);
+      if (isReset) setLoading(false);
     }
   };
 
-  const filteredOrders = orders.filter(o => {
-    const matchesSearch = o.id.toLowerCase().includes(searchText.toLowerCase()) ||
-      o.shopName.toLowerCase().includes(searchText.toLowerCase());
-    const matchesStatus = statusFilter === 'All' || o.status === statusFilter;
-    const matchesType = typeFilter === 'All' || o.type === typeFilter;
-    return matchesSearch && matchesStatus && matchesType;
-  });
+  const loadMoreOrders = async (e: any) => {
+    if (!hasMore) {
+      e.target.complete();
+      return;
+    }
+    const nextPage = page + 1;
+    setPage(nextPage);
+    await fetchOrders(nextPage, false);
+    e.target.complete();
+  };
+
+  const filteredOrders = orders;
 
   const handleDownloadAll = async () => {
     const downloadUrl = getTotalOrderDownloadUrl();
@@ -239,6 +268,13 @@ const OrderHistory: React.FC = () => {
             </div>
           )}
         </div>
+        
+        <IonInfiniteScroll
+          onIonInfinite={loadMoreOrders}
+          disabled={!hasMore}
+        >
+          <IonInfiniteScrollContent loadingSpinner="bubbles" loadingText="Loading more orders..."></IonInfiniteScrollContent>
+        </IonInfiniteScroll>
       </IonContent>
     </IonPage>
   );

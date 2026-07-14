@@ -25,7 +25,8 @@ import {
   personOutline,
   closeOutline,
   checkmarkCircleOutline,
-  cubeOutline
+  cubeOutline,
+  imageOutline
 } from 'ionicons/icons';
 import React, { useState, useEffect } from 'react';
 import { useHistory } from 'react-router-dom';
@@ -220,7 +221,20 @@ const Cart: React.FC = () => {
               {items.map(item => (
                 <div key={`${item.id}-${item.size}`} className="premium-cart-card">
                   <div className="card-image-box">
-                    <img src={item.image} alt={item.name} />
+                    {item.image ? (
+                      <img 
+                        src={item.image} 
+                        alt={item.name}
+                        onError={(e) => {
+                          e.currentTarget.style.display = 'none';
+                          const fallback = e.currentTarget.nextElementSibling;
+                          if (fallback) (fallback as HTMLElement).style.display = 'flex';
+                        }} 
+                      />
+                    ) : null}
+                    <div className="fallback-image-wrapper" style={{ display: item.image ? 'none' : 'flex' }}>
+                      <IonIcon icon={imageOutline} className="fallback-icon" />
+                    </div>
                   </div>
 
                   <div className="card-info-content">
